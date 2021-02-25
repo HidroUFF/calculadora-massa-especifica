@@ -8,7 +8,7 @@ através da resolução da equação de estado cúbica de Peng Robinson.
 
 Desenvolvido por Mateus Pereira de Sousa e Valesca Moura de Sousa
 Data de criação: 18/08/2020
-Última revisão: 06/02/2021
+Última revisão: 22/02/2021
 
 '''
 
@@ -18,7 +18,7 @@ Data de criação: 18/08/2020
 
 É necessário ter instalado:
 Python 3.x
-Bibliotecas: sympy e matplotlib
+Bibliotecas: sympy, matplotlib e PyQt5
 
 '''
 
@@ -49,7 +49,7 @@ Como instalar o PIP no Windows: https://www.youtube.com/watch?v=qrhwMJ-_cTs
 
 '''
 
-###################################################      ENTRADA DE DADOS DO PROGRAMA    ############################################################
+###################################################     EXEMPLO DA ENTRADA DE DADOS DO PROGRAMA    ############################################################
 
 ''' COMPOSIÇAO DA MISTURA '''
 
@@ -125,14 +125,18 @@ PRESSAO = 200
 
 '''
 
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication
 import gui
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    MainWindow.setWindowIcon(QtGui.QIcon("hidroufflogo.ico"))
+    icon = QtGui.QIcon()
+    icon.addPixmap(QtGui.QPixmap(":/icon/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+    MainWindow.setWindowIcon(icon)
+    MainWindow.setIconSize(QtCore.QSize(16, 16))
     ui = gui.Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()

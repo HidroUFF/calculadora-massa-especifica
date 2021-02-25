@@ -1,5 +1,3 @@
-###################################################      PROGRAMA     #################################################
-
 from sympy import solveset, S, Symbol, functions
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -400,21 +398,50 @@ def obter_nome_padrao():
 
     return nomePadraoArquivo
 
-def Salvar_csv(m_esp, nomeArquivo):
+def to_tabela_composicao(composicao):
+    '''
+    Transforma o dicionário composição em uma tabela com a composição utilizada no cálculo
+    :param composicao: lista em forma de tabela com as massas especificas e valores de pressao
+    :return: tabela em forma de matriz com as composições
+    '''
+
+    elementos = list(composicao.keys())
+    valores = list(composicao.values())
+    tabelaComposicao = []
+
+    for i in range(len(elementos)):
+        if valores[i] != 0:
+            tabelaComposicao.append([elementos[i], valores[i]])
+
+    return tabelaComposicao
+
+def Salvar_csv(m_esp, temperatura, composicao, nomeArquivo):
     '''
     cria um arquivo de extensão .csv com as massas especificas calculadas
-    :param m_esp: lista em forma de tabela com as massas especificas
-    :param nomeArquivo: 
+    :param m_esp: lista em forma de tabela com as massas especificas e valores de pressao
+    :param nomeArquivo: nome do arquivo .csv
     :return:
     '''
-    
+
+    #transformando valores em string
+    temperatura = str(temperatura)
+    for i in range(len(composicao)):
+        for j in range(2):
+            composicao[i][j] = str(composicao[i][j])
     for i in range(len(m_esp)):
         for j in range(2):
             m_esp[i][j] = str(m_esp[i][j])
 
+    #gravando valores no arquivo
     fileobj = open(nomeArquivo, "w")
+    fileobj.write("Composição\n"+"Substância;Fração Molar\n")
+    for i in range(len(composicao)):
+        fileobj.write(composicao[i][0] + ";" + composicao[i][j] + "\n")
+
+    fileobj.write("\nTemperatura\n"+ temperatura + "\n\nMassa Específica\n")
+
     for i in range(len(m_esp)):
-            fileobj.write(m_esp[i][0] + ';' + m_esp[i][1] + '\n')
+        fileobj.write(m_esp[i][0] + ';' + m_esp[i][1] + '\n')
 
     fileobj.close()
 
@@ -442,14 +469,23 @@ def ler_arquivo(nomeArquivo):
     :param : 
     :return data: dados do arquivo
     '''
-
     data = []
     with open(nomeArquivo, 'r') as file:
+        line = file.readline()
+
+        while line != "Temperatura\n" and line != "":
+            line = file.readline()
+    
+        temperatura = file.readline().strip()
+
+        while line != "Massa Específica\n" and line != "":
+            line = file.readline()
+            
         for line in file:
-                data.append(line.strip())
+            data.append(line.strip())
         file.close()
 
-    return data
+    return temperatura, data
 
 def converter_Temperatura_Kelvin(unidade, valor):
     '''
@@ -459,11 +495,16 @@ def converter_Temperatura_Kelvin(unidade, valor):
     :param valor: indica o valor da temperatura na unidade referida
     :return valor: valor da temperatura em kelvin
     '''
-    if unidade == ESCALAS_DE_TEMPERATURA[0]: #"CELSIUS"
-        valor = valor + 273
-    elif unidade == ESCALAS_DE_TEMPERATURA[1]: #"FAHRENHEIT"
+
+    #
+    # Constantes utilizadas na conversão baseadas nos valores do NIST - National Institute of Standards and Technology
+    #
+
+    if unidade == ESCALAS_DE_TEMPERATURA[0]: #CELSIUS
+        valor = valor + 273.15 
+    elif unidade == ESCALAS_DE_TEMPERATURA[1]: #FAHRENHEIT
         celsius = (valor - 32)/1.8
-        valor = celsius + 273
+        valor = celsius + 273.15
     return valor
 
 def verificar_Soma_Fracao_Molar(matrizComposicao):

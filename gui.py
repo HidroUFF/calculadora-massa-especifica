@@ -2,9 +2,10 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QDir, QRegExp
-from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtGui import QFontDatabase, QRegExpValidator
 from PyQt5.QtWidgets import QFileDialog
-import images_rc
+from platform import system
+import imagesAndFonts_rc
 import calculadora
 import verificacaoDeEntrada
 
@@ -152,7 +153,7 @@ class Ui_MainWindow(object):
                 temperatura = dados[1]
                 pressao = dados[2]
                 resultado = calculadora.calcular_PressaoUnica(composicao, temperatura, pressao)
-                self.label_resultadoPressao.setText("Resultado: "+str(resultado))
+                self.label_resultadoPressao.setText("Massa específica: "+str(resultado)+" kg/m³")
 
     def salvarResultado(self):
             '''
@@ -169,17 +170,17 @@ class Ui_MainWindow(object):
                 nomePadraoArquivo = calculadora.obter_nome_padrao()
                 file_Name = QFileDialog.getSaveFileName(None, "Salvar resultado", QDir.currentPath()+"//"+nomePadraoArquivo, "Arquivo csv (*.csv)")
 
-                print(file_Name[0])
+                if file_Name[0] != "":
+                        composicao = dados[0]
+                        temperatura = dados[1]
+                        pressaoInicial = dados[2][0]
+                        pressaoFinal = dados[2][1]
+                        passo = dados[2][2]
 
-                composicao = dados[0]
-                temperatura = dados[1]
-                pressaoInicial = dados[2][0]
-                pressaoFinal = dados[2][1]
-                passo = dados[2][2]
-
-                pressoes, massaEspecificaIsoterma = calculadora.calcular_PressaoIntervalo(composicao, temperatura, pressaoInicial, pressaoFinal, passo)
-                resultado = calculadora.Tabela_Massa_Especifica(pressoes, massaEspecificaIsoterma)
-                calculadora.Salvar_csv(resultado, file_Name[0])
+                        pressoes, massaEspecificaIsoterma = calculadora.calcular_PressaoIntervalo(composicao, temperatura, pressaoInicial, pressaoFinal, passo)
+                        resultado = calculadora.Tabela_Massa_Especifica(pressoes, massaEspecificaIsoterma)
+                        composicao = calculadora.to_tabela_composicao(composicao)
+                        calculadora.Salvar_csv(resultado, temperatura, composicao, file_Name[0])
 
     def gerarGraficoDaIsoterma(self):
             '''
@@ -201,7 +202,7 @@ class Ui_MainWindow(object):
 
                     pressoes, massaEspecificaIsoterma = calculadora.calcular_PressaoIntervalo(composicao, temperatura, pressaoInicial, pressaoFinal, passo)
                     calculadora.Plot_Isoterma(pressoes, massaEspecificaIsoterma, temperatura)
-                    print("Gráfico gerado")
+                    #print("Gráfico gerado")
     
     def filtrar(self):
             '''
@@ -255,11 +256,11 @@ class Ui_MainWindow(object):
 
         if file_name != "":
                 if file_name[0].endswith('.csv'):
-                        data = calculadora.ler_arquivo(file_name[0])        
-
-                        if verificacaoDeEntrada.verificarArquivo(data):
+                        temperatura, data = calculadora.ler_arquivo(file_name[0])        
+                        
+                        if verificacaoDeEntrada.verificarArquivo(data, temperatura):
                                 data = calculadora.formatar_dados_arquivo(data)
-                                calculadora.Plot_Isoterma(data[0], data[1], 10)
+                                calculadora.Plot_Isoterma(data[0], data[1], float(temperatura))
                         else:
                                 self.mostrarMsgmDeErro("Dados em formato incorreto!")
                         
@@ -283,9 +284,9 @@ class Ui_MainWindow(object):
                 #criando nova substancia para a composicao
                 _translate = QtCore.QCoreApplication.translate
                 frame_substancia = QtWidgets.QFrame(self.frame)
-                frame_substancia.setGeometry(QtCore.QRect(0, 40*len(self.matrizSubstancias), 322, 40))
-                frame_substancia.setMinimumSize(QtCore.QSize(322, 40))
-                frame_substancia.setMaximumSize(QtCore.QSize(322, 40))
+                frame_substancia.setGeometry(QtCore.QRect(0, 40*len(self.matrizSubstancias), 318, 40))
+                frame_substancia.setMinimumSize(QtCore.QSize(318, 40))
+                frame_substancia.setMaximumSize(QtCore.QSize(318, 40))
                 frame_substancia.setFrameShape(QtWidgets.QFrame.StyledPanel)
                 frame_substancia.setFrameShadow(QtWidgets.QFrame.Raised)
                 frame_substancia.setObjectName("frame_substancia")
@@ -295,10 +296,10 @@ class Ui_MainWindow(object):
                 pushButton_closeFrameSubstancia = QtWidgets.QPushButton(frame_substancia)
                 pushButton_closeFrameSubstancia.setMinimumSize(QtCore.QSize(20, 20))
                 pushButton_closeFrameSubstancia.setMaximumSize(QtCore.QSize(20, 20))
-                font = QtGui.QFont()
-                font.setFamily("Yu Gothic UI Semibold")
-                font.setBold(True)
-                font.setWeight(75)
+                idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-SemiBold.ttf")
+                nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+                font = QtGui.QFont(nameFont)
+                font.setPointSize(9)
                 pushButton_closeFrameSubstancia.setFont(font)
                 pushButton_closeFrameSubstancia.setStyleSheet("QPushButton{\n"
                 "    border-radius: 10px;\n"
@@ -323,7 +324,6 @@ class Ui_MainWindow(object):
                 comboBox_substancias.setMaximumSize(QtCore.QSize(115, 20))
                 comboBox_substancias.setStyleSheet("border: 1px solid rgb(6, 38, 101);\n"
                 "border-radius: 5px;\n"
-                "padding: 15px;\n"
                 "background-color: rgb(244, 244, 244);\n"
                 "color: rgb(6, 38, 101);")
                 comboBox_substancias.setDuplicatesEnabled(False)
@@ -336,8 +336,11 @@ class Ui_MainWindow(object):
                 opcoesSelecionadas = self.filtrar()
                 for i in opcoesSelecionadas:
                         comboBox_substancias.model().item(i).setEnabled(False)
-                        #comboBox_substancias.model().item(i).setBackground(QtGui.QColor("grey"))
-                        comboBox_substancias.model().item(i).setForeground(QtGui.QColor("grey"))
+                        if system() == "Windows":
+                                comboBox_substancias.model().item(i).setForeground(QtGui.QColor("grey"))
+                        else:
+                                comboBox_substancias.model().item(i).setBackground(QtGui.QColor("grey"))
+                        
                 
                 currentIndex = self.getIndiceAtual()
                 comboBox_substancias.setCurrentIndex(currentIndex)
@@ -346,15 +349,16 @@ class Ui_MainWindow(object):
                 lineEdit_valorDaSubstancia = QtWidgets.QLineEdit(frame_substancia)
                 lineEdit_valorDaSubstancia.setMinimumSize(QtCore.QSize(115, 20))
                 lineEdit_valorDaSubstancia.setMaximumSize(QtCore.QSize(115, 20))
-                onlyDouble = QRegExpValidator(QRegExp("[0-9]{1,20}\\.[0-9]{1,20}"))
+                onlyDouble = QRegExpValidator(QRegExp("[0-9]{1,20}[.][0-9]{1,20}"))
                 lineEdit_valorDaSubstancia.setValidator(onlyDouble)
-                font = QtGui.QFont()
-                font.setFamily("Yu Gothic UI")
+                idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+                nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+                font = QtGui.QFont(nameFont)
+                font.setPointSize(8)
                 lineEdit_valorDaSubstancia.setFont(font)
                 lineEdit_valorDaSubstancia.setStyleSheet("QLineEdit{\n"
                 "    border: 1px solid rgb(6, 38, 101);\n"
                 "    border-radius: 5px;\n"
-                "    padding: 15px;\n"
                 "    background-color: rgb(244, 244, 244);\n"
                 "}\n"
                 "\n"
@@ -452,12 +456,11 @@ class Ui_MainWindow(object):
         MainWindow.resize(500, 550)
         MainWindow.setMinimumSize(QtCore.QSize(500, 550))
         MainWindow.setMaximumSize(QtCore.QSize(500, 550))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Light")
-        MainWindow.setFont(font)
-        '''icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("hidroufflogo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        MainWindow.setWindowIcon(icon)'''
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        self.font = QtGui.QFont(nameFont)
+        self.font.setPointSize(10)
+        MainWindow.setFont(self.font)
         MainWindow.setStyleSheet("/*VERTICAL SCROLLBAR*/\n"
         "QScrollBar:vertical{\n"
         "    border: none;\n"
@@ -539,12 +542,12 @@ class Ui_MainWindow(object):
         self.label_calcMassaEsp.setGeometry(QtCore.QRect(30, 8, 240, 50))
         self.label_calcMassaEsp.setMinimumSize(QtCore.QSize(240, 50))
         self.label_calcMassaEsp.setMaximumSize(QtCore.QSize(240, 50))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semibold")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_calcMassaEsp.setFont(font)
+        idFontTitle = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Bold.ttf")
+        nameFontTitle = QFontDatabase.applicationFontFamilies(idFontTitle)[0]
+        fontTitle = QtGui.QFont(nameFontTitle)
+        fontTitle.setBold(True)
+        fontTitle.setPointSize(11)
+        self.label_calcMassaEsp.setFont(fontTitle)
         self.label_calcMassaEsp.setStyleSheet("color: rgb(6, 38, 101);")
         self.label_calcMassaEsp.setObjectName("label_calcMassaEsp")
         self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self.frame_superior)
@@ -660,15 +663,14 @@ class Ui_MainWindow(object):
         self.frame_pressaoUnica.setMaximumSize(QtCore.QSize(470, 16777215))
         self.frame_pressaoUnica.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_pressaoUnica.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_pressaoUnica.setStyleSheet("background-color: rgb(236, 236, 236);\n"
+        "border: 0px solid rgb(236, 236, 236);\n")
         self.frame_pressaoUnica.setObjectName("frame_pressaoUnica")
         self.label_resultadoPressao = QtWidgets.QLabel(self.frame_pressaoUnica)
         self.label_resultadoPressao.setGeometry(QtCore.QRect(50, 70, 381, 20))
         self.label_resultadoPressao.setMinimumSize(QtCore.QSize(150, 20))
         self.label_resultadoPressao.setMaximumSize(QtCore.QSize(500, 20))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
-        font.setPointSize(10)
-        self.label_resultadoPressao.setFont(font)
+        self.label_resultadoPressao.setFont(self.font)
         self.label_resultadoPressao.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_resultadoPressao.setStyleSheet("color: rgb(6, 38, 101);")
         self.label_resultadoPressao.setAlignment(QtCore.Qt.AlignCenter)
@@ -683,6 +685,11 @@ class Ui_MainWindow(object):
         self.pushButton_calcular = QtWidgets.QPushButton(self.layoutWidget_2)
         self.pushButton_calcular.setMinimumSize(QtCore.QSize(150, 20))
         self.pushButton_calcular.setMaximumSize(QtCore.QSize(150, 20))
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
+        self.pushButton_calcular.setFont(font)
         self.pushButton_calcular.setStyleSheet("QPushButton{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 6px;\n"
@@ -704,6 +711,11 @@ class Ui_MainWindow(object):
         self.pushButton_limparCampos_3.setMinimumSize(QtCore.QSize(150, 20))
         self.pushButton_limparCampos_3.setMaximumSize(QtCore.QSize(150, 20))
         self.pushButton_limparCampos_3.setToolTip("")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
+        self.pushButton_limparCampos_3.setFont(font)
         self.pushButton_limparCampos_3.setStyleSheet("QPushButton{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 6px;\n"
@@ -728,18 +740,19 @@ class Ui_MainWindow(object):
         self.gridLayout_pressaoUnica2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_pressaoUnica2.setSpacing(0)
         self.gridLayout_pressaoUnica2.setObjectName("gridLayout_pressaoUnica2")
-        self.onlyDouble = QRegExpValidator(QRegExp("[0-9]{1,20}\\.[0-9]{1,20}"))
+        self.onlyDouble = QRegExpValidator(QRegExp("[0-9]{1,20}[.][0-9]{1,20}"))
         self.lineEdit_pressao = QtWidgets.QLineEdit(self.layoutWidget)
         self.lineEdit_pressao.setMinimumSize(QtCore.QSize(150, 20))
         self.lineEdit_pressao.setMaximumSize(QtCore.QSize(150, 20))
         self.lineEdit_pressao.setValidator(self.onlyDouble)
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
         self.lineEdit_pressao.setFont(font)
         self.lineEdit_pressao.setStyleSheet("QLineEdit{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 5px;\n"
-        "    padding: 15px;\n"
         "    background-color: rgb(244, 244, 244);\n"
         "}\n"
         "\n"
@@ -767,10 +780,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setSpacing(9)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.label_erro = QtWidgets.QLabel(self.frame_erro)
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semibold")
-        font.setBold(True)
-        font.setWeight(75)
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-SemiBold.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
         self.label_erro.setFont(font)
         self.label_erro.setAlignment(QtCore.Qt.AlignCenter)
         self.label_erro.setObjectName("label_erro")
@@ -778,10 +791,10 @@ class Ui_MainWindow(object):
         self.pushButton_closeErro = QtWidgets.QPushButton(self.frame_erro)
         self.pushButton_closeErro.setMinimumSize(QtCore.QSize(18, 18))
         self.pushButton_closeErro.setMaximumSize(QtCore.QSize(18, 18))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semibold")
-        font.setBold(True)
-        font.setWeight(75)
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-SemiBold.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(9)
         self.pushButton_closeErro.setFont(font)
         self.pushButton_closeErro.setStyleSheet("QPushButton{\n"
         "    border-radius: 5px;\n"
@@ -803,6 +816,8 @@ class Ui_MainWindow(object):
         self.frame_composicaoDaMistura.setGeometry(QtCore.QRect(15, 2, 470, 181))
         self.frame_composicaoDaMistura.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_composicaoDaMistura.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_composicaoDaMistura.setStyleSheet("background-color: rgb(236, 236, 236);\n"
+        "border: none;\n")
         self.frame_composicaoDaMistura.setObjectName("frame_composicaoDaMistura")
         self.scrollArea = QtWidgets.QScrollArea(self.frame_composicaoDaMistura)
         self.scrollArea.setGeometry(QtCore.QRect(77, 30, 327, 120))
@@ -823,10 +838,12 @@ class Ui_MainWindow(object):
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.frame = QtWidgets.QFrame(self.scrollAreaWidgetContents)
-        self.frame.setMinimumSize(QtCore.QSize(322, 40))
-        self.frame.setMaximumSize(QtCore.QSize(322, 16777215))
+        self.frame.setMinimumSize(QtCore.QSize(327, 40))
+        self.frame.setMaximumSize(QtCore.QSize(327, 16777215))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setStyleSheet("background-color: rgb(236, 236, 236);\n"
+        "border: none;\n")
         self.frame.setObjectName("frame")
         self.verticalLayout.addWidget(self.frame)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -840,8 +857,9 @@ class Ui_MainWindow(object):
         self.label_compMist = QtWidgets.QLabel(self.layoutWidget1)
         self.label_compMist.setMinimumSize(QtCore.QSize(150, 20))
         self.label_compMist.setMaximumSize(QtCore.QSize(150, 20))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
         font.setPointSize(10)
         self.label_compMist.setFont(font)
         self.label_compMist.setStyleSheet("color: rgb(6, 38, 101);")
@@ -883,6 +901,11 @@ class Ui_MainWindow(object):
         self.pushButton_add = QtWidgets.QPushButton(self.layoutWidget2)
         self.pushButton_add.setMinimumSize(QtCore.QSize(326, 20))
         self.pushButton_add.setMaximumSize(QtCore.QSize(326, 20))
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
+        self.pushButton_add.setFont(font)
         self.pushButton_add.setStyleSheet("QPushButton{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 6px;\n"
@@ -904,6 +927,8 @@ class Ui_MainWindow(object):
         self.frame_temperatura.setGeometry(QtCore.QRect(15, 185, 470, 61))
         self.frame_temperatura.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_temperatura.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_temperatura.setStyleSheet("background-color: rgb(236, 236, 236);\n"
+        "border: 0px solid rgb(236, 236, 236);\n")
         self.frame_temperatura.setObjectName("frame_temperatura")
         self.verticalLayoutWidget_9 = QtWidgets.QWidget(self.frame_temperatura)
         self.verticalLayoutWidget_9.setGeometry(QtCore.QRect(50, 0, 381, 61))
@@ -918,8 +943,9 @@ class Ui_MainWindow(object):
         self.label_temperatura = QtWidgets.QLabel(self.verticalLayoutWidget_9)
         self.label_temperatura.setMinimumSize(QtCore.QSize(60, 20))
         self.label_temperatura.setMaximumSize(QtCore.QSize(500, 20))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
         font.setPointSize(10)
         self.label_temperatura.setFont(font)
         self.label_temperatura.setStyleSheet("color: rgb(6, 38, 101);")
@@ -935,7 +961,6 @@ class Ui_MainWindow(object):
         self.comboBox_temperatura.setMaximumSize(QtCore.QSize(115, 20))
         self.comboBox_temperatura.setStyleSheet("border: 1px solid rgb(6, 38, 101);\n"
         "border-radius: 5px;\n"
-        "padding: 15px;\n"
         "background-color: rgb(244, 244, 244);\n"
         "color: rgb(6, 38, 101);")
         self.comboBox_temperatura.setDuplicatesEnabled(False)
@@ -947,14 +972,16 @@ class Ui_MainWindow(object):
         self.lineEdit_temperatura = QtWidgets.QLineEdit(self.verticalLayoutWidget_9)
         self.lineEdit_temperatura.setMinimumSize(QtCore.QSize(115, 20))
         self.lineEdit_temperatura.setMaximumSize(QtCore.QSize(115, 20))
+        self.onlyDouble = QRegExpValidator(QRegExp("[-+]?[0-9]{1,20}[.][0-9]{1,20}"))
         self.lineEdit_temperatura.setValidator(self.onlyDouble)
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
         self.lineEdit_temperatura.setFont(font)
         self.lineEdit_temperatura.setStyleSheet("QLineEdit{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 5px;\n"
-        "    padding: 15px;\n"
         "    background-color: rgb(244, 244, 244);\n"
         "}\n"
         "\n"
@@ -970,6 +997,8 @@ class Ui_MainWindow(object):
         self.frame_pressao.setGeometry(QtCore.QRect(15, 246, 470, 71))
         self.frame_pressao.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_pressao.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_pressao.setStyleSheet("background-color: rgb(236, 236, 236);\n"
+        "border: 0px solid rgb(236, 236, 236);\n")
         self.frame_pressao.setObjectName("frame_pressao")
         self.verticalLayoutWidget_10 = QtWidgets.QWidget(self.frame_pressao)
         self.verticalLayoutWidget_10.setGeometry(QtCore.QRect(50, 0, 381, 66))
@@ -985,8 +1014,9 @@ class Ui_MainWindow(object):
         self.label_pressao = QtWidgets.QLabel(self.verticalLayoutWidget_10)
         self.label_pressao.setMinimumSize(QtCore.QSize(60, 20))
         self.label_pressao.setMaximumSize(QtCore.QSize(240, 20))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
         font.setPointSize(10)
         self.label_pressao.setFont(font)
         self.label_pressao.setStyleSheet("color: rgb(6, 38, 101);")
@@ -1024,8 +1054,10 @@ class Ui_MainWindow(object):
         self.radioButton_unica = QtWidgets.QRadioButton(self.verticalLayoutWidget_10)
         self.radioButton_unica.setMinimumSize(QtCore.QSize(70, 20))
         self.radioButton_unica.setMaximumSize(QtCore.QSize(70, 20))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(9)
         self.radioButton_unica.setFont(font)
         self.radioButton_unica.setStyleSheet("color: rgb(6, 38, 101);")
         self.radioButton_unica.setObjectName("radioButton_unica")
@@ -1033,8 +1065,6 @@ class Ui_MainWindow(object):
         self.radioButton_intervalo = QtWidgets.QRadioButton(self.verticalLayoutWidget_10)
         self.radioButton_intervalo.setMinimumSize(QtCore.QSize(70, 20))
         self.radioButton_intervalo.setMaximumSize(QtCore.QSize(70, 20))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
         self.radioButton_intervalo.setFont(font)
         self.radioButton_intervalo.setStyleSheet("color: rgb(6, 38, 101);")
         self.radioButton_intervalo.setObjectName("radioButton_intervalo")
@@ -1052,12 +1082,19 @@ class Ui_MainWindow(object):
         self.frame_emBranco.setMaximumSize(QtCore.QSize(470, 16777215))
         self.frame_emBranco.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_emBranco.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_emBranco.setStyleSheet("background-color: rgb(236, 236, 236);\n"
+        "border: 0px solid rgb(236, 236, 236);\n")
         self.frame_emBranco.setObjectName("frame_emBranco")
         self.pushButton_limparCampos = QtWidgets.QPushButton(self.frame_emBranco)
         self.pushButton_limparCampos.setGeometry(QtCore.QRect(77, 40, 326, 20))
         self.pushButton_limparCampos.setMinimumSize(QtCore.QSize(326, 20))
         self.pushButton_limparCampos.setMaximumSize(QtCore.QSize(326, 20))
         self.pushButton_limparCampos.setToolTip("")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
+        self.pushButton_limparCampos.setFont(font)
         self.pushButton_limparCampos.setStyleSheet("QPushButton{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 6px;\n"
@@ -1081,6 +1118,8 @@ class Ui_MainWindow(object):
         self.frame_pressaoIntervalo.setStyleSheet("background-color: rgb(236, 236, 236);")
         self.frame_pressaoIntervalo.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_pressaoIntervalo.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_pressaoIntervalo.setStyleSheet("background-color: rgb(236, 236, 236);\n"
+        "border: 0px solid rgb(236, 236, 236);\n")
         self.frame_pressaoIntervalo.setObjectName("frame_pressaoIntervalo")
         self.layoutWidget_5 = QtWidgets.QWidget(self.frame_pressaoIntervalo)
         self.layoutWidget_5.setGeometry(QtCore.QRect(50, 40, 381, 31))
@@ -1092,6 +1131,11 @@ class Ui_MainWindow(object):
         self.pushButton_salvarResultado = QtWidgets.QPushButton(self.layoutWidget_5)
         self.pushButton_salvarResultado.setMinimumSize(QtCore.QSize(150, 20))
         self.pushButton_salvarResultado.setMaximumSize(QtCore.QSize(150, 20))
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
+        self.pushButton_salvarResultado.setFont(font)
         self.pushButton_salvarResultado.setStyleSheet("QPushButton{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 6px;\n"
@@ -1112,6 +1156,11 @@ class Ui_MainWindow(object):
         self.pushButton_gerarGrafico = QtWidgets.QPushButton(self.layoutWidget_5)
         self.pushButton_gerarGrafico.setMinimumSize(QtCore.QSize(150, 20))
         self.pushButton_gerarGrafico.setMaximumSize(QtCore.QSize(150, 20))
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
+        self.pushButton_gerarGrafico.setFont(font)
         self.pushButton_gerarGrafico.setStyleSheet("QPushButton{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 6px;\n"
@@ -1134,6 +1183,11 @@ class Ui_MainWindow(object):
         self.pushButton_limparCampos_2.setMinimumSize(QtCore.QSize(326, 20))
         self.pushButton_limparCampos_2.setMaximumSize(QtCore.QSize(326, 20))
         self.pushButton_limparCampos_2.setToolTip("")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
+        self.pushButton_limparCampos_2.setFont(font)
         self.pushButton_limparCampos_2.setStyleSheet("QPushButton{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 6px;\n"
@@ -1161,13 +1215,14 @@ class Ui_MainWindow(object):
         self.lineEdit_pressaoFinal.setMinimumSize(QtCore.QSize(100, 20))
         self.lineEdit_pressaoFinal.setMaximumSize(QtCore.QSize(100, 20))
         self.lineEdit_pressaoFinal.setValidator(self.onlyDouble)
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
         self.lineEdit_pressaoFinal.setFont(font)
         self.lineEdit_pressaoFinal.setStyleSheet("QLineEdit{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 5px;\n"
-        "    padding: 15px;\n"
         "    background-color: rgb(244, 244, 244);\n"
         "}\n"
         "\n"
@@ -1182,13 +1237,14 @@ class Ui_MainWindow(object):
         self.lineEdit_passo.setMinimumSize(QtCore.QSize(100, 20))
         self.lineEdit_passo.setMaximumSize(QtCore.QSize(100, 20))
         self.lineEdit_passo.setValidator(self.onlyDouble)
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
         self.lineEdit_passo.setFont(font)
         self.lineEdit_passo.setStyleSheet("QLineEdit{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 5px;\n"
-        "    padding: 15px;\n"
         "    background-color: rgb(244, 244, 244);\n"
         "}\n"
         "\n"
@@ -1203,13 +1259,14 @@ class Ui_MainWindow(object):
         self.lineEdit_pressaoInicial.setMinimumSize(QtCore.QSize(100, 20))
         self.lineEdit_pressaoInicial.setMaximumSize(QtCore.QSize(100, 20))
         self.lineEdit_pressaoInicial.setValidator(self.onlyDouble)
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI")
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(8)
         self.lineEdit_pressaoInicial.setFont(font)
         self.lineEdit_pressaoInicial.setStyleSheet("QLineEdit{\n"
         "    border: 1px solid rgb(6, 38, 101);\n"
         "    border-radius: 5px;\n"
-        "    padding: 15px;\n"
         "    background-color: rgb(244, 244, 244);\n"
         "}\n"
         "\n"
@@ -1243,10 +1300,10 @@ class Ui_MainWindow(object):
         self.pushButton_closeAjuda.setGeometry(QtCore.QRect(450, 10, 18, 18))
         self.pushButton_closeAjuda.setMinimumSize(QtCore.QSize(18, 18))
         self.pushButton_closeAjuda.setMaximumSize(QtCore.QSize(18, 18))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semibold")
-        font.setBold(True)
-        font.setWeight(75)
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-SemiBold.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(9)
         self.pushButton_closeAjuda.setFont(font)
         self.pushButton_closeAjuda.setStyleSheet("QPushButton{\n"
         "    border-radius: 5px;\n"
@@ -1270,11 +1327,11 @@ class Ui_MainWindow(object):
         self.label_ajuda.setGeometry(QtCore.QRect(20, 0, 240, 40))
         self.label_ajuda.setMinimumSize(QtCore.QSize(240, 40))
         self.label_ajuda.setMaximumSize(QtCore.QSize(240, 40))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semibold")
-        font.setPointSize(12)
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Bold.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(11)
         font.setBold(True)
-        font.setWeight(75)
         self.label_ajuda.setFont(font)
         self.label_ajuda.setStyleSheet("color: rgb(255,255,255);")
         self.label_ajuda.setObjectName("label_ajuda")
@@ -1285,14 +1342,13 @@ class Ui_MainWindow(object):
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
         self.label_ajuda_2 = QtWidgets.QLabel(self.frame_ajuda)
-        self.label_ajuda_2.setGeometry(QtCore.QRect(40, 70, 400, 300))
-        self.label_ajuda_2.setMinimumSize(QtCore.QSize(400, 300))
-        self.label_ajuda_2.setMaximumSize(QtCore.QSize(400, 300))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semilight")
-        font.setPointSize(11)
-        font.setBold(False)
-        font.setWeight(50)
+        self.label_ajuda_2.setGeometry(QtCore.QRect(40, 45, 400, 400))
+        self.label_ajuda_2.setMinimumSize(QtCore.QSize(400, 400))
+        self.label_ajuda_2.setMaximumSize(QtCore.QSize(400, 400))
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(10)
         self.label_ajuda_2.setFont(font)
         self.label_ajuda_2.setStyleSheet("color: rgb(255,255,255);")
         self.label_ajuda_2.setAlignment(QtCore.Qt.AlignCenter)
@@ -1313,10 +1369,10 @@ class Ui_MainWindow(object):
         self.pushButton_closeSobre.setGeometry(QtCore.QRect(450, 10, 18, 18))
         self.pushButton_closeSobre.setMinimumSize(QtCore.QSize(18, 18))
         self.pushButton_closeSobre.setMaximumSize(QtCore.QSize(18, 18))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semibold")
-        font.setBold(True)
-        font.setWeight(75)
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-SemiBold.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(9)
         self.pushButton_closeSobre.setFont(font)
         self.pushButton_closeSobre.setStyleSheet("QPushButton{\n"
         "    border-radius: 5px;\n"
@@ -1340,11 +1396,11 @@ class Ui_MainWindow(object):
         self.label_sobre.setGeometry(QtCore.QRect(20, 0, 240, 40))
         self.label_sobre.setMinimumSize(QtCore.QSize(240, 40))
         self.label_sobre.setMaximumSize(QtCore.QSize(240, 40))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semibold")
-        font.setPointSize(12)
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Bold.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(11)
         font.setBold(True)
-        font.setWeight(75)
         self.label_sobre.setFont(font)
         self.label_sobre.setStyleSheet("color: rgb(255,255,255);")
         self.label_sobre.setObjectName("label_sobre")
@@ -1358,11 +1414,10 @@ class Ui_MainWindow(object):
         self.label_sobre_2.setGeometry(QtCore.QRect(40, 70, 400, 300))
         self.label_sobre_2.setMinimumSize(QtCore.QSize(400, 300))
         self.label_sobre_2.setMaximumSize(QtCore.QSize(400, 300))
-        font = QtGui.QFont()
-        font.setFamily("Yu Gothic UI Semilight")
-        font.setPointSize(11)
-        font.setBold(False)
-        font.setWeight(50)
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        font = QtGui.QFont(nameFont)
+        font.setPointSize(10)
         self.label_sobre_2.setFont(font)
         self.label_sobre_2.setStyleSheet("color: rgb(255,255,255);")
         self.label_sobre_2.setAlignment(QtCore.Qt.AlignCenter)
@@ -1447,6 +1502,7 @@ class Ui_MainWindow(object):
         self.label_temperatura.setText(_translate("MainWindow", "Informe a temperatura:"))
         for i in range(len(calculadora.ESCALAS_DE_TEMPERATURA)):
                 self.comboBox_temperatura.setItemText(i, _translate("MainWindow", calculadora.ESCALAS_DE_TEMPERATURA[i]))
+        self.comboBox_temperatura.setCurrentIndex(2) #Kelvin
         self.lineEdit_temperatura.setPlaceholderText(_translate("MainWindow", "Ex.: 275.50"))
         self.label_pressao.setText(_translate("MainWindow", "Informe o(s) valor(es) da pressão (ATM):"))
         self.pushButton_infoPressao.setToolTip(_translate("MainWindow", "Escolha \"Única\" se deseja realizar o cálculo para\n"
@@ -1465,12 +1521,31 @@ class Ui_MainWindow(object):
         self.lineEdit_pressaoInicial.setPlaceholderText(_translate("MainWindow", "INICIAL"))
         self.pushButton_closeAjuda.setText(_translate("MainWindow", "X"))
         self.label_ajuda.setText(_translate("MainWindow", "Ajuda"))
-        self.label_ajuda_2.setText(_translate("MainWindow", "Para utilizar o programa..."))
+        self.label_ajuda_2.setText(_translate("MainWindow", "Para utilizar a aplicação basta informar a composição da\n"+
+        "mistura, a temperatura em ATM, e o valor de pressão.\n"+
+        "A pressão pode ter um único valor ou uma faixa de valores.\n"+
+        "Para tal, informe os valores inicial, final e o passo entre eles.\n"+
+        "\n"+
+        "Ao realizar o cálculo para uma faixa de valores de pressão\n"+
+        "é possível gerar o gráfico da Isoterma ou salvar o resultado\n"+
+        "em um arquivo .csv (comma-separated values). Este arquivo\n"+
+        "pode ser utilizado posteriormente para gerar o gráfico\n"+
+        "diretamente. Para utilizar esta funcionalidade conserve o\n"+
+        "formato original do arquivo, alterando apenas valores\n"+
+        "numéricos, se necessário.\n"+
+        "\n"+
+        "Orientações gerais:\n"+
+        "- A soma das frações molares deve ser igual a 1.0.\n"+
+        "- Utilize ponto (.) como separador decimal.\n"+
+        "- Não utilize separador de milhar.\n"+
+        "- O arquivo .csv deve ser separado por ponto e vírgula (;).\n"+
+        "- Não modifique o cabeçalho do arquivo .csv. Se modificado,\n"+
+        "pode levar a erros na geração do gráfico."))
         self.pushButton_closeSobre.setText(_translate("MainWindow", "X"))
         self.label_sobre.setText(_translate("MainWindow", "Sobre"))
-        self.label_sobre_2.setText(_translate("MainWindow", "Calculadora de Massa Específica HidroUFF\n\n Versão 1.0 \n\n"+
-        "Este aplicativo tem como funcionalidade principal o cálculo \nda massa especifica de misturas gasosas, "+
+        self.label_sobre_2.setText(_translate("MainWindow", "Calculadora de Massa Específica HidroUFF\nVersão 1.0 \n\n"+
+        "Esta aplicação tem como funcionalidade principal o cálculo \nda massa específica de misturas gasosas, "+
         "através da\n resolução da equação de estado cúbica de Peng Robinson.\n \n"+
-        "Desenvolvedores:\nMateus Pereira de Sousa (e-mail)\nValesca Moura de Sousa (valescamoura@id.uff.br)\n"+
-        "Orientadores:\nFernanda Gonçalves de Oliveira Passos\n"+
-        "Última revisão: 06/02/2021"))
+        "Desenvolvedores:\nMateus Pereira de Sousa\nValesca Moura de Sousa\n"+
+        "Orientadores:\nFernanda Gonçalves de Oliveira Passos\nRogério Fernandes de Lacerda\nFelipe Pereira de Moura\n"+
+        "Última revisão: 22/02/2021"))

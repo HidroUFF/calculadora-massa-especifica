@@ -44,7 +44,7 @@ def verificarSubstanciasRepetidas(vetor):
                 
     return False
 
-def verificarArquivo(dados):
+def verificarArquivo(dados, t):
     '''
     Verifica se arquivo .csv de entrada tem o conteudo no formato correto
     :param dados: vetor que contem todas as linhas do arquivo lido
@@ -52,11 +52,15 @@ def verificarArquivo(dados):
     '''
 
     for i in range(1, len(dados)):
-        aux = re.search("^[0-9]{1,20}\\.[0-9]{1,20}\\;[0-9]{1,20}\\.[0-9]{1,20}$", dados[i])
-    
+        aux = re.search("^[0-9]{1,20}([.])?([eE][-+])?[0-9]{1,20}[;][0-9]{1,20}([.])?([eE][-+])?[0-9]{1,20}$", dados[i])
+        
         if aux != None:
             dados[i] = aux.string
         else:
             return False
+
+    temp = re.search("^[0-9]{1,20}([.])?([eE][-+])?[0-9]{1,20}$", t)
+    if temp == None:
+        return False
 
     return True
