@@ -74,3 +74,9 @@ Para utilizar a aplicação basta informar a fração molar de cada substância 
 * Data de criação: 18/08/2020
 * Última revisão: 22/02/2021
 * Qualquer sugestão ou dúvida sobre a aplicação, comunique um dos responsáveis.
+
+## Citando a Calculadora de Massa Específica HidroUFF
+
+Se a Calculadora de Massa Específica HidroUFF contribuiu para algum projeto ou pesquisa que resultou em uma publicação, por favor, cite-a.
+
+[![DOI](https://zenodo.org/badge/322632859.svg)](https://zenodo.org/badge/latestdoi/322632859)
