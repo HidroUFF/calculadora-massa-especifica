@@ -100,12 +100,12 @@ class Ui_MainWindow(object):
         #checar se existem campos em branco, duplicados ou se a soma é diferente de 1.0 na composicao da mistura
         temCamposEmBranco = verificacaoDeEntrada.verificarCamposEmBranco(inputs,pressaoUnica)
         if temCamposEmBranco:
-                print("Existem campos em branco")
+                #print("Existem campos em branco")
                 self.mostrarMsgmDeErro("Preencha todos os campos") #Mostrar erro
                 return ""
         temSubstanciasRepetidas = verificacaoDeEntrada.verificarSubstanciasRepetidas(inputs[0])
         if temSubstanciasRepetidas:
-                print("Existem substâncias repetidas")
+                #print("Existem substâncias repetidas")
                 self.mostrarMsgmDeErro("Não é possível selecionar a mesma substância mais de uma vez") #Mostrar erro
                 return ""
 
@@ -127,7 +127,7 @@ class Ui_MainWindow(object):
 
         somaDiferenteDeUm = calculadora.verificar_Soma_Fracao_Molar(inputs[0])
         if somaDiferenteDeUm:
-                print("Soma != 1")
+                #print("Soma != 1")
                 self.mostrarMsgmDeErro("A soma das frações molares deve ser igual a 1.0")
                 return ""
 
@@ -1543,9 +1543,9 @@ class Ui_MainWindow(object):
         "pode levar a erros na geração do gráfico."))
         self.pushButton_closeSobre.setText(_translate("MainWindow", "X"))
         self.label_sobre.setText(_translate("MainWindow", "Sobre"))
-        self.label_sobre_2.setText(_translate("MainWindow", "Calculadora de Massa Específica HidroUFF\nVersão 1.0 \n\n"+
+        self.label_sobre_2.setText(_translate("MainWindow", "Calculadora de Massa Específica HidroUFF\nVersão 1.1.0\n\n"+
         "Esta aplicação tem como funcionalidade principal o cálculo \nda massa específica de misturas gasosas, "+
         "através da\n resolução da equação de estado cúbica de Peng Robinson.\n \n"+
         "Desenvolvedores:\nMateus Pereira de Sousa\nValesca Moura de Sousa\n"+
         "Orientadores:\nFernanda Gonçalves de Oliveira Passos\nRogério Fernandes de Lacerda\nFelipe Pereira de Moura\n"+
-        "Última revisão: 22/02/2021"))
+        "Última revisão: 24/06/2021"))
