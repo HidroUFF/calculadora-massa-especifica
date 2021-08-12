@@ -1,6 +1,6 @@
 import re
 
-def verificarCamposEmBranco(vetor, pressaoUnica):
+def verificar_campos_em_branco(vetor, pressaoUnica) -> bool:
     '''
     Verifica se existem campos em branco nos dados de entrada
     :param vetor: lista com todos os dados de entrada no formato
@@ -29,7 +29,7 @@ def verificarCamposEmBranco(vetor, pressaoUnica):
 
     return False
 
-def verificarSubstanciasRepetidas(vetor):
+def verificar_substancias_repetidas(vetor) -> bool:
     '''
     Verifica se foram selecionadas substancias repetidas entre os dados de entrada da composicao da mistura
     :param vetor: matriz com os elementos dinamicos da interface refentes a composicao da mistura
@@ -44,7 +44,7 @@ def verificarSubstanciasRepetidas(vetor):
                 
     return False
 
-def verificarArquivo(dados, t):
+def verificar_arquivo(dados, t) -> bool:
     '''
     Verifica se arquivo .csv de entrada tem o conteudo no formato correto
     :param dados: vetor que contem todas as linhas do arquivo lido

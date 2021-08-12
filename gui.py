@@ -5,9 +5,9 @@ from PyQt5.QtCore import QDir, QRegExp
 from PyQt5.QtGui import QFontDatabase, QRegExpValidator
 from PyQt5.QtWidgets import QFileDialog
 from platform import system
-import imagesAndFonts_rc
 import calculadora
 import verificacaoDeEntrada
+import imagesAndFonts_rc
 
 
 class Ui_MainWindow(object):
@@ -17,8 +17,163 @@ class Ui_MainWindow(object):
     #cada linha corresponde a um vetor = [frame, comboBox, lineEdit, pushButton]
     matrizSubstancias = []
     indiceBotoes = 0 #indice dos botoes adicionados dinamicamente
+    
+    # Internacionalização
+    # Strings utilizadas para nomear os labels do aplicativo na ordem: português (codigo==0), inglês (codigo==1) e espanhol (codigo==2).
+    codigo = 0 # Default == 0 => português
+    STRINGS = {
+        "substancias": [calculadora.SUBSTANCIAS, calculadora.SUBSTANCES, calculadora.SUSTANCIAS],
+        "title": ["Calculadora de Massa Específica HidroUFF", "HidroUFF Density Calculator", "Calculadora de Densidad HidroUFF"],
+        "label_calcMassaEsp": ["Calculadora de Massa Específica", "Density Calculator", "Calculadora de Densidad"],
+        "pushButton_grafico": ["Gerar gráfico a partir de arquivo CSV","Generate graph from CSV file","Generar gráfico a partir de archivo CSV"],
+        "pushButton_ajuda": ["Ajuda", "Help", "Ayuda"],
+        "pushButton_sobre": ["Sobre", "About", "Sobre el software"],
+        "label_resultadoPressao": ["Resultado:", "Result:", "Resultado:"],
+        "pushButton_calcular": ["Calcular", "Calculate", "Calcular"],
+        "pushButton_limparCampos": ["Limpar campos", "Clear fields", "Limpiar los campos"],
+        "label_erro": ["Erro", "Error", "Error"],
+        "label_compMist": ["Composição da Mistura: ", "Mix composition: ", "Composición: "],
+        "pushButton_infoCompMist": [
+                                        "Informe a fração molar da mistura desejada.\n"
+                                        "O somatório das frações deve ser igual a 1.0",
+                                        "Enter the molar fraction of the desired mixture.\n"
+                                        "The sum of fractions must equal 1.0",
+                                        "Ingrese la fracción molar de la mezcla deseada.\n"
+                                        "La suma de fracciones debe ser igual a 1.0"
+                                        ],
+        "pushButton_add": ["Adicionar substância", "Add substance", "Agregar sustancia"],
+        "pushButton_add_tootip": ["Adicionar substância à composição", "Add substance to composition", "Agregar sustancia a la composición"],
+        "label_temperatura": ["Informe a temperatura:", "Enter the temperature:", "Ingrese la temperatura:"],
+        "label_pressao": ["Informe o(s) valor(es) da pressão (ATM):  ", "Enter the pressure value(s) (ATM): ", "Ingrese los valores de presión (ATM): "],
+        "pushButton_infoPressao": [
+                                        "Escolha \"Única\" se deseja realizar o cálculo para\n"
+                                        "um valor de pressão e \"Intervalo\" caso deseje\n"
+                                        "calcular para uma faixa de valores de pressão.",
+                                        "Choose \"Single pressure\" if you want to perform the calculation\n"
+                                        "for a pressure value and \"Pressure range\" if desired\n"
+                                        "calculate for a range of pressure values.",
+                                        "Elija \"Única\" si desea realizar el cálculo para \n"
+                                        "un valor de presión e \"Intervalo\" si lo desea \n"
+                                        "calcular para un intervalo de valores de presión."
+                                        ],
+        "radioButton_unica": ["Única", "Single", "Única"],
+        "radioButton_intervalo": ["Intervalo", "Range", "Intervalo"],
+        "pushButton_salvarResultado": ["Gerar CSV", "Generate CSV", "Generar CSV"],
+        "pushButton_salvarResultado_tooltip": ["Calcular e salvar resultado em arquivo CSV", 
+                                                "Calculate and save result in CSV file", 
+                                                "Calcular y guardar el resultado en un archivo CSV"],
+        "pushButton_gerarGrafico": ["Gráfico da Isoterma", "Isotherm Graph","Gráfico de isotermas"],
+        "pushButton_gerarGrafico_tooltip": ["Calcular e gerar gráfico da Isoterma",
+                                                "Calculate and generate Isotherm graph",
+                                                "Calcular y generar gráfico de isotermas"],
+        "lineEdit_pressaoFinal": ["FINAL", "FINAL", "FINAL"],
+        "lineEdit_pressaoInicial": ["INICIAL", "INITIAL", "INICIAL"],
+        "lineEdit_passo": ["PASSO", "RANGE","INTERVALO"],
+        "idioma_tooltip": ["Idioma", "Language", "Idioma"],
+        "label_ajuda": ["Ajuda", "Help", "Ayuda"],
+        "label_ajuda_2": [
+                "Para utilizar a aplicação basta informar a composição da\n"+
+                "mistura, a temperatura em ATM, e o valor de pressão.\n"+
+                "A pressão pode ter um único valor ou uma faixa de valores.\n"+
+                "Para tal, informe os valores inicial, final e o passo entre eles.\n"+
+                "\n"+
+                "Ao realizar o cálculo para uma faixa de valores de pressão\n"+
+                "é possível gerar o gráfico da Isoterma ou salvar o resultado\n"+
+                "em um arquivo CSV (comma-separated values). Este arquivo\n"+
+                "pode ser utilizado posteriormente para gerar o gráfico\n"+
+                "diretamente. Para utilizar esta funcionalidade conserve o\n"+
+                "formato original do arquivo, alterando apenas valores\n"+
+                "numéricos, se necessário.\n"+
+                "\n"+
+                "Orientações gerais:\n"+
+                "- A soma das frações molares deve ser igual a 1.0.\n"+
+                "- Utilize ponto (.) como separador decimal.\n"+
+                "- Não utilize separador de milhar.\n"+
+                "- O arquivo CSV deve ser separado por ponto e vírgula (;).\n"+
+                "- Não modifique o cabeçalho do arquivo CSV. Se modificado,\n"+
+                "pode levar a erros na geração do gráfico.",
+                #Inglês
+                "To use the application, just inform the composition of\n"+
+                "mix, temperature in ATM, and pressure value.\n"+
+                "The pressure can be a single value or a range of values.\n"+
+                "To do this, enter the initial, final and the range between them.\n"+
+                "\n"+
+                "When performing the calculation for a range of pressure values\n"+
+                "it is possible to generate the Isotherm graph or save the result\n"+
+                "in a CSV (comma-separated values) file. This file\n"+
+                "can be used later to generate the graph\n"+
+                "directly. To use this feature save the\n"+
+                "original file format, changing values ​​only\n"+
+                "numeric if necessary.\n"+
+                "\n"+
+                "General guidelines:\n"+
+                "- The sum of the molar fractions must equal 1.0.\n"+
+                "- Use period (.) as decimal separator.\n"+
+                "- Do not use thousands separator.\n"+
+                "- The CSV file must be separated by a semicolon (;).\n"+
+                "- Do not modify the CSV file header. If modified,\n"+
+                "may lead to errors in graph generation.",
+                # Espanhol
+                "Para usar la aplicación, solo informa la composición de \n" +
+                "mezcla, temperatura en ATM y valor de presión.\n" +
+                "La presión puede ser un valor único o un intervalo de valores. \n" +
+                "Para hacer esto, ingrese el inicio, el final y el intervalo entre ellos. \n" +
+                "\n" +
+                "Al realizar el cálculo para un intervalo de valores de presión \n" +
+                "es posible generar el gráfico de isotermas o guardar el resultado \n" +
+                "en un archivo CSV (comma-separated values). Este archivo\n" +
+                "se puede usar más tarde para generar el gráfico\n" +
+                "directamente. Para utilizar esta función, guarde el\n" +
+                "formato de archivo original, solo cambiar valores\n" +
+                "numérico si es necesario.\n" +
+                "\n" +
+                "Directrices generales: \n" +
+                "- La suma de las fracciones molares debe ser igual a 1.0. \n" +
+                "- Utilice punto (.) Como separador decimal. \n" +
+                "- No utilice separador de miles.\n" +
+                "- El archivo CSV debe estar separado por un punto y coma (;). \n" +
+                "- No modifique el encabezado del archivo CSV. Si se modifica, \n" +
+                "puede dar lugar a errores en la generación de gráficos."
+                ],
+        "label_sobre": ["Sobre", "About", "Sobre el software"],
+        "label_sobre_2": [
+                "Calculadora de Massa Específica HidroUFF\nVersão 1.2.0\n\n"+
+                "Esta aplicação tem como funcionalidade principal o cálculo \nda massa específica de misturas gasosas, "+
+                "através da\n resolução da equação de estado cúbica de Peng Robinson.\n \n"+
+                "Desenvolvedores:\nMateus Pereira de Sousa\nValesca Moura de Sousa\n"+
+                "Orientadores:\nFernanda Gonçalves de Oliveira Passos\nRogério Fernandes de Lacerda\nFelipe Pereira de Moura\n"+
+                "Última revisão: 11/08/2021",
+                "HydroUFF Density Calculator\nVersion 1.2.0\n\n"+
+                "This application's main functionality is to calculate \nthe density of gas mixtures, "+
+                "by solving\n Peng Robinson's cubic equation of state.\n \n"+
+                "Developers:\nMateus Pereira de Sousa\nValesca Moura de Sousa\n"+
+                "Advisors:\nFernanda Gonçalves de Oliveira Passos\nRogério Fernandes de Lacerda\nFelipe Pereira de Moura\n"+
+                "Last Revision: 08/11/2021",
+                "Calculadora de densidad HydroUFF\nVersión 1.2.0\n\n" +
+                "La funcionalidad principal de esta aplicación es calcular \nla densidad de mezclas de gases" +
+                "resolviendo \n la ecuación cúbica de estado de Peng Robinson. \n\n" +
+                "Desarrolladores:\nMateus Pereira de Sousa\nValesca Moura de Sousa\n" +
+                "Asesores:\nFernanda Gonçalves de Oliveira Passos\nRogério Fernandes de Lacerda\nFelipe Pereira de Moura\n" +
+                "Última revisión: 11/08/2021"
+                ],
+        "salvar_resultado": ["Salvar resultado", "Save result", "Salvar"],
+        "arquivo": ["Arquivo csv", "CSV file", "Archivo csv"],
+        "selec_arquivo": ["Selecione o arquivo", "Choose file", "Elija el archivo"],
+        "erro_campos_brancos": ["Preencha todos os campos", "Fill in all fields", "Complete todos los campos"],
+        "erro_subs_repetidas": [
+                "Não é possível selecionar a mesma substância mais de uma vez",
+                "It is not possible to select the same substance more than once",
+                "No es posible seleccionar la misma sustancia más de una vez"
+        ],
+        "erro_fracao_molar": [
+                "A soma das frações molares deve ser igual a 1.0",
+                "The sum of the molar fractions must equal 1.0",
+                "La suma de las fracciones molares debe ser igual a 1.0"
+        ],
+        "erro_formato": ["Dados em formato incorreto!", "Data in incorrect format!", "¡Datos en formato incorrecto!"]
+     } 
 
-    def onClicked(self):
+    def onClicked(self) -> bool:
         '''
         Verifica se o radio button foi clicado e exibe o frame correspondente
         :param self: 
@@ -38,7 +193,7 @@ class Ui_MainWindow(object):
         else: 
                 return False
 
-    def limparCampos(self):
+    def limparCampos(self) -> None:
             '''
             Limpa os campos preenchidos
        
@@ -55,7 +210,7 @@ class Ui_MainWindow(object):
                     substancia[2].clear()
             self.label_resultadoPressao.setText("Resultado:")
 
-    def mostrarMsgmDeErro(self, mensagem):
+    def mostrarMsgmDeErro(self, mensagem) -> None:
             '''
             Mostra uma mensagem de erro na tela
        
@@ -66,7 +221,7 @@ class Ui_MainWindow(object):
             self.label_erro.setText(mensagem)
             self.frame_erro.show()
 
-    def input(self):
+    def input(self) -> list:
         '''
         Lê os dados informados na interface e verifica se há algum problema com os dados
 
@@ -98,15 +253,15 @@ class Ui_MainWindow(object):
         inputs = [composicao, temperatura, pressao]
 
         #checar se existem campos em branco, duplicados ou se a soma é diferente de 1.0 na composicao da mistura
-        temCamposEmBranco = verificacaoDeEntrada.verificarCamposEmBranco(inputs,pressaoUnica)
+        temCamposEmBranco = verificacaoDeEntrada.verificar_campos_em_branco(inputs,pressaoUnica)
         if temCamposEmBranco:
                 #print("Existem campos em branco")
-                self.mostrarMsgmDeErro("Preencha todos os campos") #Mostrar erro
+                self.mostrarMsgmDeErro(self.STRINGS["erro_campos_brancos"][self.codigo]) #Mostrar erro
                 return ""
-        temSubstanciasRepetidas = verificacaoDeEntrada.verificarSubstanciasRepetidas(inputs[0])
+        temSubstanciasRepetidas = verificacaoDeEntrada.verificar_substancias_repetidas(inputs[0])
         if temSubstanciasRepetidas:
                 #print("Existem substâncias repetidas")
-                self.mostrarMsgmDeErro("Não é possível selecionar a mesma substância mais de uma vez") #Mostrar erro
+                self.mostrarMsgmDeErro(self.STRINGS["erro_subs_repetidas"][self.codigo]) #Mostrar erro
                 return ""
 
         # transformar strings em números
@@ -122,22 +277,26 @@ class Ui_MainWindow(object):
                         pressao[p] = float(pressao[p])
 
         inputs[0] = composicao
-        inputs[1] = calculadora.converter_Temperatura_Kelvin(unidadeDaTemperatura, valorDaTemperatura)
+        inputs[1] = calculadora.converter_temperatura_kelvin(unidadeDaTemperatura, valorDaTemperatura)
         inputs[2] = pressao
 
-        somaDiferenteDeUm = calculadora.verificar_Soma_Fracao_Molar(inputs[0])
+        somaDiferenteDeUm = calculadora.verificar_soma_fracao_molar(inputs[0])
         if somaDiferenteDeUm:
                 #print("Soma != 1")
-                self.mostrarMsgmDeErro("A soma das frações molares deve ser igual a 1.0")
+                self.mostrarMsgmDeErro(self.STRINGS["erro_fracao_molar"][self.codigo])
                 return ""
 
         # formatar input (composicao) para o formato utilizado pela calculadora
+        subs = self.STRINGS["substancias"][self.codigo]
+        for i in range(len(inputs[0])):
+                indice = subs.index(inputs[0][i][0])
+                inputs[0][i][0] = self.STRINGS["substancias"][0][indice] # regastar palavra chave em português para ser utilizada pelo app
         inputFormatado = calculadora.formatar_input_composicao(inputs[0])
         inputs[0] = inputFormatado
         
         return inputs
 
-    def calcular(self):
+    def calcular(self) -> None: 
         '''
         Lê dados da interface, obtem o resultado para o cálculo quando há uma única pressão e exibe na tela
 
@@ -152,12 +311,12 @@ class Ui_MainWindow(object):
                 composicao = dados[0]
                 temperatura = dados[1]
                 pressao = dados[2]
-                resultado = calculadora.calcular_PressaoUnica(composicao, temperatura, pressao)
+                resultado = calculadora.calcular_pressao_unica(composicao, temperatura, pressao)
                 self.label_resultadoPressao.setText("Massa específica: "+str(resultado)+" kg/m³")
 
-    def salvarResultado(self):
+    def salvarResultado(self) -> None:
             '''
-            Lê dados da interface, obtem o resultado para o cálculo quando há um intervalo de valores de pressao e salva resultado em arquivo .csv
+            Lê dados da interface, obtem o resultado para o cálculo quando há um intervalo de valores de pressao e salva resultado em arquivo CSV
 
             :param self: 
             :return: 
@@ -167,8 +326,8 @@ class Ui_MainWindow(object):
             dados = self.input() #ler dados formatados
 
             if dados != "":
-                nomePadraoArquivo = calculadora.obter_nome_padrao()
-                file_Name = QFileDialog.getSaveFileName(None, "Salvar resultado", QDir.currentPath()+"//"+nomePadraoArquivo, "Arquivo csv (*.csv)")
+                nomePadraoArquivo = calculadora.obter_nome_padrao(self.codigo)
+                file_Name = QFileDialog.getSaveFileName(None, self.STRINGS["salvar_resultado"][self.codigo], QDir.currentPath()+"//"+nomePadraoArquivo, self.STRINGS["arquivo"][self.codigo] + " (*.csv)")
 
                 if file_Name[0] != "":
                         composicao = dados[0]
@@ -177,12 +336,12 @@ class Ui_MainWindow(object):
                         pressaoFinal = dados[2][1]
                         passo = dados[2][2]
 
-                        pressoes, massaEspecificaIsoterma = calculadora.calcular_PressaoIntervalo(composicao, temperatura, pressaoInicial, pressaoFinal, passo)
-                        resultado = calculadora.Tabela_Massa_Especifica(pressoes, massaEspecificaIsoterma)
+                        pressoes, massaEspecificaIsoterma = calculadora.calcular_pressao_intervalo(composicao, temperatura, pressaoInicial, pressaoFinal, passo)
+                        resultado = calculadora.tabela_massa_especifica(pressoes, massaEspecificaIsoterma)
                         composicao = calculadora.to_tabela_composicao(composicao)
-                        calculadora.Salvar_csv(resultado, temperatura, composicao, file_Name[0])
+                        calculadora.salvar_csv(resultado, temperatura, composicao, file_Name[0], self.codigo)
 
-    def gerarGraficoDaIsoterma(self):
+    def gerarGraficoDaIsoterma(self) -> None:
             '''
             Lê dados da interface, obtem o resultado para o cálculo quando há um intervalo de valores de pressao e gera o grafico da isoterma
 
@@ -200,11 +359,11 @@ class Ui_MainWindow(object):
                     pressaoFinal = dados[2][1]
                     passo = dados[2][2]
 
-                    pressoes, massaEspecificaIsoterma = calculadora.calcular_PressaoIntervalo(composicao, temperatura, pressaoInicial, pressaoFinal, passo)
-                    calculadora.Plot_Isoterma(pressoes, massaEspecificaIsoterma, temperatura)
+                    pressoes, massaEspecificaIsoterma = calculadora.calcular_pressao_intervalo(composicao, temperatura, pressaoInicial, pressaoFinal, passo)
+                    calculadora.plot_isoterma(pressoes, massaEspecificaIsoterma, temperatura, self.codigo)
                     #print("Gráfico gerado")
     
-    def filtrar(self):
+    def filtrar(self) -> list:
             '''
             Obtem indice dos items já selecionados nos comboBox existentes
 
@@ -219,7 +378,7 @@ class Ui_MainWindow(object):
             
             return aux
 
-    def getIndiceAtual(self):
+    def getIndiceAtual(self) -> int:
             '''
             Obtem indice do próximo item ainda não selecionado nos comboBox existentes
 
@@ -234,7 +393,7 @@ class Ui_MainWindow(object):
                             indice = i
                             return indice
         
-    def gerarGraficoAPartirDeArq(self):
+    def gerarGraficoAPartirDeArq(self) -> None:
         '''
         Abre caixa de diálogo de arquivo para que o usuário escolha um arquivo .csv separado por ";" com duas colunas:
         a primeira com valores de presssão e a segunda com valores da massa específica e gera o grafico da isoterma
@@ -247,7 +406,7 @@ class Ui_MainWindow(object):
         fileDialog.setFileMode(QFileDialog.ExistingFile)
         fileDialog.setFilter(QDir.Files)
         fileDialog.setNameFilter('*.csv')
-        fileDialog.setWindowTitle('Selecione o arquivo')
+        fileDialog.setWindowTitle(self.STRINGS["selec_arquivo"][self.codigo])
 
         data = ""
         file_name = ""
@@ -256,15 +415,14 @@ class Ui_MainWindow(object):
 
         if file_name != "":
                 if file_name[0].endswith('.csv'):
-                        temperatura, data = calculadora.ler_arquivo(file_name[0])        
-                        
-                        if verificacaoDeEntrada.verificarArquivo(data, temperatura):
+                        temperatura, data = calculadora.ler_arquivo(file_name[0], self.codigo)        
+                        if verificacaoDeEntrada.verificar_arquivo(data, temperatura):
                                 data = calculadora.formatar_dados_arquivo(data)
-                                calculadora.Plot_Isoterma(data[0], data[1], float(temperatura))
+                                calculadora.plot_isoterma(data[0], data[1], float(temperatura), self.codigo)
                         else:
-                                self.mostrarMsgmDeErro("Dados em formato incorreto!")
+                                self.mostrarMsgmDeErro(self.STRINGS["erro_formato"][self.codigo])
                         
-    def add(self):
+    def add(self) -> None:
         '''
         Adiciona frames dinamicamente para novas substancias
 
@@ -328,8 +486,8 @@ class Ui_MainWindow(object):
                 "color: rgb(6, 38, 101);")
                 comboBox_substancias.setDuplicatesEnabled(False)
                 comboBox_substancias.setObjectName("comboBox_substancias")
-                substancias = sorted(calculadora.SUBSTANCIAS)
-                for i in range (len(calculadora.SUBSTANCIAS)):
+                substancias = sorted(self.STRINGS["substancias"][self.codigo])
+                for i in range (len(substancias)):
                         comboBox_substancias.addItem(str(i))
                         comboBox_substancias.setItemText(i, _translate("MainWindow", substancias[i]))
                 
@@ -378,7 +536,7 @@ class Ui_MainWindow(object):
                 #substancia = [frame, comboBox, lineEdit]
                 self.matrizSubstancias.append([frame_substancia, comboBox_substancias, lineEdit_valorDaSubstancia, pushButton_closeFrameSubstancia])
 
-    def getBotaoClicado(self, botao):
+    def getBotaoClicado(self, botao) -> int:
         '''
         Encontra qual dos botoes dinamicos foi clicado
 
@@ -391,7 +549,7 @@ class Ui_MainWindow(object):
                 if self.matrizSubstancias[i][3].objectName() == botaoClicado:
                         return i
     
-    def delete(self, botao):
+    def delete(self, botao) -> None:
         '''
         Deleta frames das substancias adicionadas dinamicamente 
 
@@ -399,7 +557,7 @@ class Ui_MainWindow(object):
         :return: 
         '''
 
-        #obterindice do botao clicado
+        #obter indice do botao clicado
         botaoClicado = self.getBotaoClicado(botao)
 
         if len(self.matrizSubstancias) > 3:
@@ -415,7 +573,7 @@ class Ui_MainWindow(object):
         for i in range(botaoClicado, len(self.matrizSubstancias)):
                 self.matrizSubstancias[i][0].setGeometry(QtCore.QRect(0, 40*i, 322, 40))
 
-    def ajuda(self):
+    def ajuda(self) -> None:
         '''
         Exibe a tela ajuda
 
@@ -428,7 +586,7 @@ class Ui_MainWindow(object):
         self.frame_ajuda.show()
         self.frame_baseParaAjudaESobre.show()
 
-    def sobre(self):
+    def sobre(self) -> None:
         '''
         Exibe a tela sobre o software
 
@@ -441,7 +599,7 @@ class Ui_MainWindow(object):
         self.frame_sobre.show()
         self.frame_baseParaAjudaESobre.show()
 
-    def fecharTela(self):
+    def fecharTela(self) -> None:
         '''
         Fecha a tela sobre o software ou tela de ajuda
 
@@ -451,7 +609,30 @@ class Ui_MainWindow(object):
 
         self.frame_baseParaAjudaESobre.hide()
             
-    def setupUi(self, MainWindow):
+    def setarIdioma(self, MainWindow) -> None:
+        idioma = self.pushButton_idioma.text()
+
+        if idioma == "En":
+            label_idioma = "Es"
+            self.codigo = 1
+        elif idioma == "Es":
+            label_idioma = "Pt"
+            self.codigo = 2
+        else:
+            label_idioma = "En"
+            self.codigo = 0
+
+        # limpar tela
+        for i in range(len(self.matrizSubstancias)):
+             self.matrizSubstancias[i][0].hide()
+        self.matrizSubstancias = []
+        self.limparCampos()
+        self.frame_erro.hide()
+
+        self.retranslateUi(MainWindow)
+        self.pushButton_idioma.setText(label_idioma)  
+        
+    def setupUi(self, MainWindow) -> None:
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(500, 550)
         MainWindow.setMinimumSize(QtCore.QSize(500, 550))
@@ -855,8 +1036,8 @@ class Ui_MainWindow(object):
         self.layout_compMist.setSpacing(0)
         self.layout_compMist.setObjectName("layout_compMist")
         self.label_compMist = QtWidgets.QLabel(self.layoutWidget1)
-        self.label_compMist.setMinimumSize(QtCore.QSize(150, 20))
-        self.label_compMist.setMaximumSize(QtCore.QSize(150, 20))
+        """ self.label_compMist.setMinimumSize(QtCore.QSize(150, 20))
+        self.label_compMist.setMaximumSize(QtCore.QSize(150, 20)) """
         idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-Regular.ttf")
         nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
         font = QtGui.QFont(nameFont)
@@ -874,16 +1055,16 @@ class Ui_MainWindow(object):
         self.pushButton_infoCompMist.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.pushButton_infoCompMist.setAutoFillBackground(False)
         self.pushButton_infoCompMist.setStyleSheet("QPushButton{\n"
-        "    border: 1px solid rgb(6, 38, 101);\n"
-        "    border-radius:6px;\n"
-        "    padding: 15px;\n"
-        "    background-color: rgb(244, 244, 244);\n"
-        "    background-image: url(:/info/info.png);\n"
-        "}\n"
-        "\n"
-        "QPushButton:hover{\n"
-        "    border: 1.4px solid rgb(8, 118, 196);\n"
-        "}")
+                "    border: 1px solid rgb(6, 38, 101);\n"
+                "    border-radius:6px;\n"
+                "    padding: 15px;\n"
+                "    background-color: rgb(244, 244, 244);\n"
+                "    background-image: url(:/info/info.png);\n"
+                "}\n"
+                "\n"
+                "QPushButton:hover{\n"
+                "    border: 1.4px solid rgb(8, 118, 196);\n"
+                "}")
         self.pushButton_infoCompMist.setText("")
         self.pushButton_infoCompMist.setIconSize(QtCore.QSize(16, 16))
         self.pushButton_infoCompMist.setCheckable(False)
@@ -891,6 +1072,8 @@ class Ui_MainWindow(object):
         self.pushButton_infoCompMist.setAutoDefault(False)
         self.pushButton_infoCompMist.setObjectName("pushButton_infoCompMist")
         self.layout_compMist.addWidget(self.pushButton_infoCompMist, 0, 1, 1, 1)
+        self.label_compMist_espaco = QtWidgets.QLabel(self.layoutWidget1)
+        self.layout_compMist.addWidget(self.label_compMist_espaco, 0, 2)
         self.layoutWidget2 = QtWidgets.QWidget(self.frame_composicaoDaMistura)
         self.layoutWidget2.setGeometry(QtCore.QRect(50, 150, 381, 32))
         self.layoutWidget2.setObjectName("layoutWidget2")
@@ -1031,22 +1214,24 @@ class Ui_MainWindow(object):
         self.pushButton_infoPressao.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.pushButton_infoPressao.setAutoFillBackground(False)
         self.pushButton_infoPressao.setStyleSheet("QPushButton{\n"
-        "    border: 1px solid rgb(6, 38, 101);\n"
-        "    border-radius:6px;\n"
-        "    padding: 15px;\n"
-        "    background-color: rgb(244, 244, 244);\n"
-        "    background-image: url(:/info/info.png);\n"
-        "}\n"
-        "\n"
-        "QPushButton:hover{\n"
-        "    border: 1.4px solid rgb(8, 118, 196);\n"
-        "}")
+                "    border: 1px solid rgb(6, 38, 101);\n"
+                "    border-radius:6px;\n"
+                "    padding: 15px;\n"
+                "    background-color: rgb(244, 244, 244);\n"
+                "    background-image: url(:/info/info.png);\n"
+                "}\n"
+                "\n"
+                "QPushButton:hover{\n"
+                "    border: 1.4px solid rgb(8, 118, 196);\n"
+                "}")
         self.pushButton_infoPressao.setText("")
         self.pushButton_infoPressao.setCheckable(False)
         self.pushButton_infoPressao.setChecked(False)
         self.pushButton_infoPressao.setAutoDefault(False)
         self.pushButton_infoPressao.setObjectName("pushButton_infoPressao")
         self.gridLayout_pressao.addWidget(self.pushButton_infoPressao, 0, 1, 1, 1)
+        self.label_pressao_espaco = QtWidgets.QLabel(self.verticalLayoutWidget_10)
+        self.gridLayout_pressao.addWidget(self.label_pressao_espaco, 0, 2)
         self.verticalLayout_pressao.addLayout(self.gridLayout_pressao)
         self.gridLayout_radioButtonPressao = QtWidgets.QGridLayout()
         self.gridLayout_radioButtonPressao.setSpacing(0)
@@ -1076,6 +1261,38 @@ class Ui_MainWindow(object):
         self.widget_logo.setMaximumSize(QtCore.QSize(118, 25))
         self.widget_logo.setStyleSheet("background-image: url(:/hidrouff/hidrouff.png);")
         self.widget_logo.setObjectName("widget_logo")
+
+
+        idFont = QFontDatabase.addApplicationFont(":/fonts/OpenSans-SemiBold.ttf")
+        nameFont = QFontDatabase.applicationFontFamilies(idFont)[0]
+        fontSemiBold = QtGui.QFont(nameFont)
+        fontSemiBold.setPointSize(9)
+
+        self.pushButton_idioma = QtWidgets.QPushButton(self.frame_conteudo)
+        self.pushButton_idioma.setGeometry(QtCore.QRect(30, 460, 25, 25))
+        self.pushButton_idioma.setMinimumSize(QtCore.QSize(25, 25))
+        self.pushButton_idioma.setMaximumSize(QtCore.QSize(25, 25))
+        self.pushButton_idioma.setFont(fontSemiBold) 
+        self.pushButton_idioma.setStyleSheet("QPushButton{\n"
+                                        "    border: 1px solid rgb(6, 38, 101);\n"
+                                        "    border-radius: 12px;\n"
+                                        "    padding: 2px;\n"
+                                        "    background-color: rgb(6, 38, 101);\n"
+                                        "    color: rgb(255,255,255);\n"
+                                        "}\n"
+                                        "\n"
+                                        "QPushButton:hover{\n"
+                                        "    border: 1.5px solid rgb(8, 118, 196);\n"
+                                        "}\n"
+                                        "\n"
+                                        "QPushButton:pressed{\n"
+                                        "    background-color: rgb(8, 118, 196);\n"
+                                        "}")
+        self.pushButton_idioma.setCheckable(False)
+        self.pushButton_idioma.setChecked(False)
+        self.pushButton_idioma.setAutoDefault(False)
+        self.pushButton_idioma.setObjectName("pushButton_idioma")
+
         self.frame_emBranco = QtWidgets.QFrame(self.frame_conteudo)
         self.frame_emBranco.setGeometry(QtCore.QRect(15, 310, 470, 130))
         self.frame_emBranco.setMinimumSize(QtCore.QSize(470, 130))
@@ -1438,6 +1655,7 @@ class Ui_MainWindow(object):
         self.widget_logoUFF.setObjectName("widget_logoUFF")
 
         self.widget_logo.raise_()
+        self.pushButton_idioma.raise_()
         self.frame_pressaoUnica.raise_()
         self.frame_erro.raise_()
         self.frame_composicaoDaMistura.raise_()
@@ -1480,72 +1698,48 @@ class Ui_MainWindow(object):
         self.pushButton_closeSobre.clicked.connect(self.fecharTela)
         self.frame_baseParaAjudaESobre.hide()
         self.pushButton_grafico.clicked.connect(self.gerarGraficoAPartirDeArq)
+        self.pushButton_idioma.clicked.connect(lambda: self.setarIdioma(MainWindow))
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, MainWindow) -> None:
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Calculadora de Massa Especifica HidroUFF"))
-        self.label_calcMassaEsp.setText(_translate("MainWindow", "Calculadora de Massa Específica"))
-        self.pushButton_grafico.setToolTip(_translate("MainWindow", "Gerar gráfico a partir de arquivo .csv"))
-        self.pushButton_ajuda.setToolTip(_translate("MainWindow", "Ajuda"))
-        self.pushButton_sobre.setToolTip(_translate("MainWindow", "Sobre"))
-        self.label_resultadoPressao.setText(_translate("MainWindow", "Resultado:"))
-        self.pushButton_calcular.setText(_translate("MainWindow", "Calcular"))
-        self.pushButton_limparCampos_3.setText(_translate("MainWindow", "Limpar campos"))
-        self.lineEdit_pressao.setPlaceholderText(_translate("MainWindow", "Ex.: 100.8"))
-        self.label_erro.setText(_translate("MainWindow", "Erro"))
+        MainWindow.setWindowTitle(_translate("MainWindow", self.STRINGS["title"][self.codigo]))
+        self.label_calcMassaEsp.setText(_translate("MainWindow", self.STRINGS["label_calcMassaEsp"][self.codigo]))
+        self.pushButton_grafico.setToolTip(_translate("MainWindow", self.STRINGS["pushButton_grafico"][self.codigo]))
+        self.pushButton_ajuda.setToolTip(_translate("MainWindow", self.STRINGS["pushButton_ajuda"][self.codigo]))
+        self.pushButton_sobre.setToolTip(_translate("MainWindow", self.STRINGS["pushButton_sobre"][self.codigo]))
+        self.label_resultadoPressao.setText(_translate("MainWindow", self.STRINGS["label_resultadoPressao"][self.codigo]))
+        self.pushButton_calcular.setText(_translate("MainWindow", self.STRINGS["pushButton_calcular"][self.codigo]))
+        self.pushButton_limparCampos_3.setText(_translate("MainWindow", self.STRINGS["pushButton_limparCampos"][self.codigo]))
+        self.lineEdit_pressao.setPlaceholderText(_translate("MainWindow", "100.8"))
+        self.label_erro.setText(_translate("MainWindow", self.STRINGS["label_erro"][self.codigo]))
         self.pushButton_closeErro.setText(_translate("MainWindow", "X"))
-        self.label_compMist.setText(_translate("MainWindow", "Composição da Mistura:"))
-        self.pushButton_infoCompMist.setToolTip(_translate("MainWindow", "Informe a fração molar da mistura desejada.\n"
-        "O somatório das frações deve ser igual a 1.0"))
-        self.pushButton_add.setToolTip(_translate("MainWindow", " Adicionar substância à composição"))
-        self.pushButton_add.setText(_translate("MainWindow", "Adicionar substância"))
-        self.label_temperatura.setText(_translate("MainWindow", "Informe a temperatura:"))
+        self.label_compMist.setText(_translate("MainWindow", self.STRINGS["label_compMist"][self.codigo]))
+        self.pushButton_infoCompMist.setToolTip(_translate("MainWindow", self.STRINGS["pushButton_infoCompMist"][self.codigo]))
+        self.pushButton_add.setToolTip(_translate("MainWindow", self.STRINGS["pushButton_add_tootip"][self.codigo]))
+        self.pushButton_add.setText(_translate("MainWindow", self.STRINGS["pushButton_add"][self.codigo]))
+        self.label_temperatura.setText(_translate("MainWindow", self.STRINGS["label_temperatura"][self.codigo]))
         for i in range(len(calculadora.ESCALAS_DE_TEMPERATURA)):
                 self.comboBox_temperatura.setItemText(i, _translate("MainWindow", calculadora.ESCALAS_DE_TEMPERATURA[i]))
         self.comboBox_temperatura.setCurrentIndex(2) #Kelvin
-        self.lineEdit_temperatura.setPlaceholderText(_translate("MainWindow", "Ex.: 275.50"))
-        self.label_pressao.setText(_translate("MainWindow", "Informe o(s) valor(es) da pressão (ATM):"))
-        self.pushButton_infoPressao.setToolTip(_translate("MainWindow", "Escolha \"Única\" se deseja realizar o cálculo para\n"
-        "um valor de pressão e em \"Intervalo\" caso deseje\n"
-        "calcular para uma faixa de valores de pressão."))
-        self.radioButton_unica.setText(_translate("MainWindow", "Única"))
-        self.radioButton_intervalo.setText(_translate("MainWindow", "Intervalo"))
-        self.pushButton_limparCampos.setText(_translate("MainWindow", "Limpar campos"))
-        self.pushButton_salvarResultado.setToolTip(_translate("MainWindow", "Calcular e salvar resultado em arquivo .csv"))
-        self.pushButton_salvarResultado.setText(_translate("MainWindow", "Gerar .csv"))
-        self.pushButton_gerarGrafico.setToolTip(_translate("MainWindow", "Calcular e gerar gráfico da Isoterma"))
-        self.pushButton_gerarGrafico.setText(_translate("MainWindow", "Gráfico da Isoterma"))
-        self.pushButton_limparCampos_2.setText(_translate("MainWindow", "Limpar campos"))
-        self.lineEdit_pressaoFinal.setPlaceholderText(_translate("MainWindow", "FINAL"))
-        self.lineEdit_passo.setPlaceholderText(_translate("MainWindow", "PASSO"))
-        self.lineEdit_pressaoInicial.setPlaceholderText(_translate("MainWindow", "INICIAL"))
+        self.lineEdit_temperatura.setPlaceholderText(_translate("MainWindow", "275.50"))
+        self.label_pressao.setText(_translate("MainWindow", self.STRINGS["label_pressao"][self.codigo]))
+        self.pushButton_infoPressao.setToolTip(_translate("MainWindow", self.STRINGS["pushButton_infoPressao"][self.codigo]))
+        self.radioButton_unica.setText(_translate("MainWindow", self.STRINGS["radioButton_unica"][self.codigo]))
+        self.radioButton_intervalo.setText(_translate("MainWindow", self.STRINGS["radioButton_intervalo"][self.codigo]))
+        self.pushButton_limparCampos.setText(_translate("MainWindow", self.STRINGS["pushButton_limparCampos"][self.codigo]))
+        self.pushButton_salvarResultado.setToolTip(_translate("MainWindow", self.STRINGS["pushButton_salvarResultado_tooltip"][self.codigo]))
+        self.pushButton_salvarResultado.setText(_translate("MainWindow", self.STRINGS["pushButton_salvarResultado"][self.codigo]))
+        self.pushButton_gerarGrafico.setToolTip(_translate("MainWindow", self.STRINGS["pushButton_gerarGrafico_tooltip"][self.codigo]))
+        self.pushButton_gerarGrafico.setText(_translate("MainWindow", self.STRINGS["pushButton_gerarGrafico"][self.codigo]))
+        self.pushButton_limparCampos_2.setText(_translate("MainWindow", self.STRINGS["pushButton_limparCampos"][self.codigo]))
+        self.lineEdit_pressaoFinal.setPlaceholderText(_translate("MainWindow", self.STRINGS["lineEdit_pressaoFinal"][self.codigo]))
+        self.lineEdit_passo.setPlaceholderText(_translate("MainWindow", self.STRINGS["lineEdit_passo"][self.codigo]))
+        self.lineEdit_pressaoInicial.setPlaceholderText(_translate("MainWindow", self.STRINGS["lineEdit_pressaoInicial"][self.codigo]))
         self.pushButton_closeAjuda.setText(_translate("MainWindow", "X"))
-        self.label_ajuda.setText(_translate("MainWindow", "Ajuda"))
-        self.label_ajuda_2.setText(_translate("MainWindow", "Para utilizar a aplicação basta informar a composição da\n"+
-        "mistura, a temperatura em ATM, e o valor de pressão.\n"+
-        "A pressão pode ter um único valor ou uma faixa de valores.\n"+
-        "Para tal, informe os valores inicial, final e o passo entre eles.\n"+
-        "\n"+
-        "Ao realizar o cálculo para uma faixa de valores de pressão\n"+
-        "é possível gerar o gráfico da Isoterma ou salvar o resultado\n"+
-        "em um arquivo .csv (comma-separated values). Este arquivo\n"+
-        "pode ser utilizado posteriormente para gerar o gráfico\n"+
-        "diretamente. Para utilizar esta funcionalidade conserve o\n"+
-        "formato original do arquivo, alterando apenas valores\n"+
-        "numéricos, se necessário.\n"+
-        "\n"+
-        "Orientações gerais:\n"+
-        "- A soma das frações molares deve ser igual a 1.0.\n"+
-        "- Utilize ponto (.) como separador decimal.\n"+
-        "- Não utilize separador de milhar.\n"+
-        "- O arquivo .csv deve ser separado por ponto e vírgula (;).\n"+
-        "- Não modifique o cabeçalho do arquivo .csv. Se modificado,\n"+
-        "pode levar a erros na geração do gráfico."))
+        self.pushButton_idioma.setText(_translate("MainWindow", "En"))
+        self.pushButton_idioma.setToolTip(_translate("MainWindow", self.STRINGS["idioma_tooltip"][self.codigo]))
+        self.label_ajuda.setText(_translate("MainWindow", self.STRINGS["label_ajuda"][self.codigo]))
+        self.label_ajuda_2.setText(_translate("MainWindow", self.STRINGS["label_ajuda_2"][self.codigo]))
         self.pushButton_closeSobre.setText(_translate("MainWindow", "X"))
-        self.label_sobre.setText(_translate("MainWindow", "Sobre"))
-        self.label_sobre_2.setText(_translate("MainWindow", "Calculadora de Massa Específica HidroUFF\nVersão 1.1.0\n\n"+
-        "Esta aplicação tem como funcionalidade principal o cálculo \nda massa específica de misturas gasosas, "+
-        "através da\n resolução da equação de estado cúbica de Peng Robinson.\n \n"+
-        "Desenvolvedores:\nMateus Pereira de Sousa\nValesca Moura de Sousa\n"+
-        "Orientadores:\nFernanda Gonçalves de Oliveira Passos\nRogério Fernandes de Lacerda\nFelipe Pereira de Moura\n"+
-        "Última revisão: 24/06/2021"))
+        self.label_sobre.setText(_translate("MainWindow", self.STRINGS["label_sobre"][self.codigo]))
+        self.label_sobre_2.setText(_translate("MainWindow", self.STRINGS["label_sobre_2"][self.codigo]))

@@ -1,3 +1,4 @@
+from io import StringIO
 from sympy import solveset, S, Symbol, functions
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -55,17 +56,32 @@ argonio = [39.948, 4928.45, 150.6, -0.004]
 elementos = [metano, etano, co2, n2, propano, nbutano, h2s, n_pentano, n_hexano, n_heptano, n_octano, n_nonano,
             n_decano, n_pentadecano_C15, ciclohexano, benzeno, tolueno, agua_pura, gas_oxigenio_O2, argonio]
 
-# ATENÇÃO: Ao inserir novos elementos no vetor elementos, insira-os no vetor
-# SUBSTANCIAS seguindo o mesmo padrão para manter a integridade e funcionamento 
-# da calculadora.
+# ATENÇÃO: Ao inserir novos elementos no vetor elementos, insira-os nos vetores
+# SUBSTANCIAS, SUBSTANCES e SUSTANCIAS seguindo o mesmo padrão para manter a integridade  
+# e funcionamento da calculadora.
 SUBSTANCIAS = ["METANO", "ETANO", "CO2", "N2", "PROPANO", "N-BUTANO", "H2S", "N-PENTANO", "N-HEXANO", "N-HEPTANO", "N-OCTANO","N-NONANO", 
-              "N-DECANO", "N-PENTADECANO", "CICLO-HEXANO", "BENZENO", "TOLUENO", "ÁGUA-PURA", "GÁS OXIGÊNIO", "ARGÔNIO"]
+              "N-DECANO", "N-PENTADECANO", "CICLO-HEXANO", "BENZENO", "TOLUENO", "ÁGUA PURA", "GÁS OXIGÊNIO", "ARGÔNIO"]
+SUBSTANCES = ["METHANE", "ETHANE", "CO2", "N2", "PROPANE", "N-BUTANE", "H2S", "N-PENTANE", "N-HEXANE", "N-HEPTANE", "N-OCTANE","N-NONANE",
+               "N-DECAN", "N-PENTADECAN", "CYCLOHEXANE", "BENZENE", "TOLUENE", "PURE WATER", "OXYGEN GAS", "ARGON"]
+SUSTANCIAS = ["METANO", "ETANO", "CO2", "N2", "PROPANO", "N-BUTANO", "H2S", "N-PENTANO", "N-HEXANO", "N-HEPTANO", "N-OCTANO","N-NONANO", 
+              "N-DECANO", "N-PENTADECANO", "CICLO-HEXANO", "BENCENO", "TOLUENO", "AGUA PURA", "GAS OXIGENO", "ARGÓN"]
 NUM_SUBSTANCIAS = len(elementos) # número de fluidos cadastrados
 ESCALAS_DE_TEMPERATURA = ["CELSIUS", "FAHRENHEIT", "KELVIN"]
 
+# Internacionalização
+# Strings utilizadas para nomear os labels do aplicativo na ordem: português (codigo==0), inglês (codigo==1) e espanhol (codigo==2).
+STRINGS = {"title": ["Massa Específica a", "Density at", "Desidad a"],
+           "label_x": ["Pressão ", "Pressure", "Presión"],
+           "label_y": ["Massa específica", "Density", "Densidad"],
+           "composicao": ["Composição", "Composition", "Composición"],
+           "substancia": ["Substância", "Substance", "Sustancia"],
+           "fracao_molar": ["Fração Molar", "Molar fraction", "Fracción molar"],
+           "temperatura": ["Temperatura", "Temperature", "Temperatura"]
+        }
+
 ###   FUNÇÕES    
 
-def Input_Composicao(composicao):
+def input_composicao(composicao) -> list:
     # cria uma lista com as composiçoes
     a = list(composicao.values())
     subs = []
@@ -78,7 +94,7 @@ def Input_Composicao(composicao):
             cont +=1
     return subs
 
-def Input_Fracao(composicao):
+def input_fracao(composicao) -> list:
     #cria uma lista com as fraçoes molares
     a = list(composicao.values())
     fracao = []
@@ -91,7 +107,7 @@ def Input_Fracao(composicao):
             cont += 1
     return fracao
 
-def Lista_Pressoes(p_inicial, p_final, passo):
+def lista_pressoes(p_inicial, p_final, passo) -> list:
     #cria uma lista com as pressoes de acordo com o passo escolhido
     pressoes = []
     pressoes.insert(0, p_inicial)
@@ -107,7 +123,7 @@ def Lista_Pressoes(p_inicial, p_final, passo):
             c += passo
     return pressoes
 
-def Conversao_atm (p_list):
+def conversao_atm (p_list) -> list:
     '''
     converte a pressao de atm para kpa
 
@@ -119,7 +135,7 @@ def Conversao_atm (p_list):
     p_kpa = [i * 101.3 for i in p_list]
     return p_kpa
 
-def Matriz_Kij (velementos,vsubs):
+def matriz_kij (velementos,vsubs) -> list:
     '''
     Cria uma matriz com os Kij que serao utilizados no calculo
     :param velementos: lista com todos os elementos disponíveis
@@ -149,7 +165,7 @@ def Matriz_Kij (velementos,vsubs):
             cont3 += 1
     return k_ij
 
-def Subs2 (velementos,vsubs):
+def Subs2 (velementos,vsubs) -> list:
     '''
     cria nova lista de substancias a partir de 'subs'  de modo que fique na mesma ordem que a lista 'elementos', para facilitar no cálculo do aij
 
@@ -165,7 +181,7 @@ def Subs2 (velementos,vsubs):
                     subs2.append(vsubs[j])
     return subs2
 
-def Fracao_Molar_Substancias (velementos, vsubs, vfracao_molar):
+def fracao_molar_substancias (velementos, vsubs, vfracao_molar) -> list:
     '''
     cria nova lista de fraçao molar a partir de 'fracao molar e subs'  de modo que fique na mesma ordem que a lista 'elementos', para facilitar no cálculo do aij
 
@@ -182,7 +198,7 @@ def Fracao_Molar_Substancias (velementos, vsubs, vfracao_molar):
                     x.append(vfracao_molar[j])
     return x
 
-def Prop_Criticas(subs2):
+def prop_criticas(subs2) -> list:
     '''
     cria listas para as propriedade criticas de cada elemento da mistura na ordem de elementos
     :return:
@@ -195,7 +211,7 @@ def Prop_Criticas(subs2):
         w.append(subs2[i][3])
     return massa, Pc, Tc, w
 
-def Cont_Massa_Molar_Mistura(vmassa, subs, x):
+def cont_massa_molar_mistura(vmassa, subs, x) -> list:
     '''
     contribuicao da massa molar de cada fluido
     :param vmassa: lista com massa molar de cada componente da mistura
@@ -206,7 +222,7 @@ def Cont_Massa_Molar_Mistura(vmassa, subs, x):
         contrib_molar_mistura.append(x[i] * vmassa[i])
     return contrib_molar_mistura
 
-def Calculo_bi_PREOS(vsubs2, x):
+def calculo_bi_PREOS(vsubs2, x) -> list:
     '''
     calucula os parametros bi da eq de Peng Robison
     :param vsubs2: lista com os elementos utilizados
@@ -219,7 +235,7 @@ def Calculo_bi_PREOS(vsubs2, x):
         bi[i] = x[i] * bi[i]
     return bi
 
-def Calculo_ki_PREOS(vsubs2):
+def calculo_ki_PREOS(vsubs2) -> list:
     '''
     calucula os parametros ki da eq de Peng Robison
     :param vsubs2: lista com os elementos utilizados
@@ -231,7 +247,7 @@ def Calculo_ki_PREOS(vsubs2):
         ki.append(-0.26992 * (vsubs2[i][3]) ** 2 + 1.54226 * vsubs2[i][3] + 0.37464)
     return ki
 
-def Eq_Cubica(b, c, d):
+def eq_cubica(b, c, d) -> list:
     '''
     resolve uma eq cubica retornando uma lista de raizes reais
 
@@ -250,7 +266,7 @@ def Eq_Cubica(b, c, d):
         Z[i] = float(Z[i])
     return Z
 
-def Ai (vsubs2,vki,vt,r):
+def Ai (vsubs2,vki,vt,r) -> list:
     '''
     calcula o termo ai de cada componente
     :param vsubs2: lista com substancias
@@ -263,7 +279,7 @@ def Ai (vsubs2,vki,vt,r):
         ai.append((0.457235529 * (r * vsubs2[i][2]) ** 2) / vsubs2[i][1] * (1 + vki[i] * (1 - (vt / vsubs2[i][2]) ** 0.5)) ** 2)
     return ai
 
-def Calculo_Aij(vk_ij,vai,subs):
+def calculo_aij(vk_ij,vai,subs) -> list:
     '''
     calcula o termo 'aij' da eq de Peng Robison, atraves da multiplicaçao dos termos das matrizes aij e kij
     :param vk_ij: matriz kij ja ajustada para os componentes utilizados
@@ -284,7 +300,7 @@ def Calculo_Aij(vk_ij,vai,subs):
 
     return aij
 
-def Calculo_a (vsubs2,vx,vaij):
+def calculo_a (vsubs2,vx,vaij) -> float:
     # criando matriz aij e a
     a_vet = []
     for i in range(len(vsubs2)):
@@ -297,7 +313,7 @@ def Calculo_a (vsubs2,vx,vaij):
             a_lista.append(a_vet[i][j])
     return sum(a_lista)
 
-def Stable_Root(Zlist, pressure, A, B):
+def stable_root(Zlist, pressure, A, B) -> float:
     '''
     define a raiz Z estavel a partir do calculo de fugacidade
 
@@ -318,18 +334,18 @@ def Stable_Root(Zlist, pressure, A, B):
         menor = fug.index(min(fug))
         return Zlist[menor]
 
-def Massa_Especifica_Geral(b1, c1, d1, massa_molar_total, p, r, t):
+def massa_especifica_geral(b1, c1, d1, massa_molar_total, p, r, t) -> list:
     '''
     calcula a massa especfica para todos os resultados reais de Z
     :rtype: list
     '''
-    Zvar = Eq_Cubica(b1, c1, d1)
+    Zvar = eq_cubica(b1, c1, d1)
     m = []
     for i in Zvar:
         m.append(massa_molar_total * p / (r * t * Zvar[0]))
         return m
 
-def Massa_Especifica_Estavel(r_estavel, press, r, t, massa_molar_total):
+def massa_especifica_estavel(r_estavel, press, r, t, massa_molar_total) -> float:
     '''
     calcula a massa especifica estavel a partir da raiz Z estavel
     :param r_estavel: raiz estavel
@@ -342,13 +358,13 @@ def Massa_Especifica_Estavel(r_estavel, press, r, t, massa_molar_total):
     m = massa_molar_total * press / (r * t * r_estavel)
     return m
 
-def Massa_Especifica_Isoterma(p_inicial, p_final, passo, a, r, t, b, massa_molar_total):
+def massa_especifica_isoterma(p_inicial, p_final, passo, a, r, t, b, massa_molar_total) -> list:
     '''
     calcula as massas especificas de acordo com a isoterma definida
     :return:
     '''
-    pr_atm = Lista_Pressoes(p_inicial, p_final, passo)
-    pr_kpa = Conversao_atm(pr_atm)
+    pr_atm = lista_pressoes(p_inicial, p_final, passo)
+    pr_kpa = conversao_atm(pr_atm)
     final = []
     for i in pr_kpa:
         A = (a * i) / pow(r, 2) / pow(t, 2)
@@ -356,21 +372,21 @@ def Massa_Especifica_Isoterma(p_inicial, p_final, passo, a, r, t, b, massa_molar
         b2 = -(1 - B)
         c2 = A - 3 * pow(B, 2) - 2 * B
         d2 = -(A * B - pow(B, 2) - pow(B, 3))
-        a1 = Eq_Cubica(b2, c2, d2)
-        a2 = Stable_Root(a1, i, A, B)
-        a3 = Massa_Especifica_Estavel(a2, i, r, t, massa_molar_total)
+        a1 = eq_cubica(b2, c2, d2)
+        a2 = stable_root(a1, i, A, B)
+        a3 = massa_especifica_estavel(a2, i, r, t, massa_molar_total)
         valor = round(a3,3)
         final.append(valor)
     return final
 
-def Plot_Isoterma(listaPressoes, listaMassaEspIsoterma,t):
+def plot_isoterma(listaPressoes, listaMassaEspIsoterma, t, codigo_idioma) -> None:
     plt.plot(listaPressoes, listaMassaEspIsoterma)
-    plt.title('Massa Específica a %i K' % (t))
-    plt.xlabel('Pressão (atm)')
-    plt.ylabel('Massa específica (kg/m³)')
+    plt.title(STRINGS["title"][codigo_idioma] + ' %i K' % (t))
+    plt.xlabel(STRINGS["label_x"][codigo_idioma] + ' (ATM)')
+    plt.ylabel(STRINGS["label_y"][codigo_idioma] + ' (kg/m³)')
     plt.show()
 
-def Tabela_Massa_Especifica(pressoes, me):
+def tabela_massa_especifica(pressoes, me) -> list:
     '''
     cria uma tabela com as massas especificas da isoterma deifinida
     :return:
@@ -381,8 +397,8 @@ def Tabela_Massa_Especifica(pressoes, me):
         a.append([0] * 2 )
     cont = 0
     cont1 = 1
-    a[0][0]= 'atm'
-    a[0][1]= 'kg/m³'
+    a[0][0]= 'ATM'
+    a[0][1]= 'Kg/m³'
     for b in range(len(a)-1):
         for k in range(0,1):
             a[cont1][0] = pressoes[cont]
@@ -395,7 +411,7 @@ def Tabela_Massa_Especifica(pressoes, me):
         print()'''
     return a
 
-def Salvar_txt(m_esp):
+def salvar_txt(m_esp) -> None:
     '''
     cria um arquivo txt com as massas espeficas calculadas
     :param m_esp: lista em forma de tabela com as massas especificas
@@ -414,7 +430,7 @@ def Salvar_txt(m_esp):
 
     fileobj.close()
 
-def obter_nome_padrao():
+def obter_nome_padrao(codigo) -> str:
     '''
     Cria um nome padrão para o arquivo que será salvo
     :param : 
@@ -422,11 +438,11 @@ def obter_nome_padrao():
     '''
 
     data = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
-    nomePadraoArquivo = "Massa específica "+data+".csv"
+    nomePadraoArquivo =  STRINGS["label_y"][codigo]+"-"+data+".csv"
 
     return nomePadraoArquivo
 
-def to_tabela_composicao(composicao):
+def to_tabela_composicao(composicao) -> list:
     '''
     Transforma o dicionário composição em uma tabela com a composição utilizada no cálculo
     :param composicao: lista em forma de tabela com as massas especificas e valores de pressao
@@ -443,7 +459,7 @@ def to_tabela_composicao(composicao):
 
     return tabelaComposicao
 
-def Salvar_csv(m_esp, temperatura, composicao, nomeArquivo):
+def salvar_csv(m_esp, temperatura, composicao, nomeArquivo, codigo) -> None:
     '''
     cria um arquivo de extensão .csv com as massas especificas calculadas
     :param m_esp: lista em forma de tabela com as massas especificas e valores de pressao
@@ -462,18 +478,25 @@ def Salvar_csv(m_esp, temperatura, composicao, nomeArquivo):
 
     #gravando valores no arquivo
     fileobj = open(nomeArquivo, "w")
-    fileobj.write("Composição\n"+"Substância;Fração Molar\n")
+    fileobj.write(STRINGS["composicao"][codigo]+"\n"+STRINGS["substancia"][codigo]+";"+STRINGS["fracao_molar"][codigo]+"\n")
     for i in range(len(composicao)):
-        fileobj.write(composicao[i][0] + ";" + composicao[i][j] + "\n")
+        # coletar string correta de acordo com idioma
+        subs = SUBSTANCIAS.index(composicao[i][0])
+        if codigo == 1:
+            subs = SUBSTANCES[subs]
+        else:
+            subs = SUSTANCIAS[subs]
 
-    fileobj.write("\nTemperatura\n"+ temperatura + "\n\nMassa Específica\n")
+        fileobj.write(subs + ";" + composicao[i][j] + "\n")
+
+    fileobj.write("\n"+STRINGS["temperatura"][codigo]+"\n"+ temperatura + "\n\n"+STRINGS["label_y"][codigo]+"\n")
 
     for i in range(len(m_esp)):
         fileobj.write(m_esp[i][0] + ';' + m_esp[i][1] + '\n')
 
     fileobj.close()
 
-def formatar_dados_arquivo(dados):
+def formatar_dados_arquivo(dados) -> list:
     '''
     Transforma strings lidas do arquivo em uma matriz de números
     :param : 
@@ -491,7 +514,7 @@ def formatar_dados_arquivo(dados):
 
     return [pressoes, m_esp]
 
-def ler_arquivo(nomeArquivo):
+def ler_arquivo(nomeArquivo, codigo) -> list:
     '''
     Lê dados do arquivo
     :param : 
@@ -501,12 +524,12 @@ def ler_arquivo(nomeArquivo):
     with open(nomeArquivo, 'r') as file:
         line = file.readline()
 
-        while line != "Temperatura\n" and line != "":
+        while line != STRINGS["temperatura"][codigo]+"\n" and line != "":
             line = file.readline()
     
         temperatura = file.readline().strip()
 
-        while line != "Massa Específica\n" and line != "":
+        while line != STRINGS["label_y"][codigo]+"\n" and line != "":
             line = file.readline()
             
         for line in file:
@@ -515,7 +538,7 @@ def ler_arquivo(nomeArquivo):
 
     return temperatura, data
 
-def converter_Temperatura_Kelvin(unidade, valor):
+def converter_temperatura_kelvin(unidade, valor) -> float:
     '''
     Converte a temperatura fornecida em celsius ou fahrenheit para kelvin
 
@@ -535,7 +558,7 @@ def converter_Temperatura_Kelvin(unidade, valor):
         valor = celsius + 273.15
     return valor
 
-def verificar_Soma_Fracao_Molar(matrizComposicao):
+def verificar_soma_fracao_molar(matrizComposicao) -> bool:
     '''
     Verifica se a soma das frações molares é diferente de 1.0
 
@@ -552,7 +575,7 @@ def verificar_Soma_Fracao_Molar(matrizComposicao):
     
     return False
 
-def formatar_input_composicao(matrizComposicao):
+def formatar_input_composicao(matrizComposicao) -> list:
     '''
     Formata input da composicao da mistura para que fique na ordem utilizada pelo programa
     :param matrizComposicao: 
@@ -571,7 +594,7 @@ def formatar_input_composicao(matrizComposicao):
 
     return composicaoFormatada
 
-def calcular_PressaoUnica(composicao, temperatura, pressao):
+def calcular_pressao_unica(composicao, temperatura, pressao) -> float:
     '''
     Realiza o cálculo da massa específica quando é fornecido um valor de pressao
     :param composicao:
@@ -580,8 +603,8 @@ def calcular_PressaoUnica(composicao, temperatura, pressao):
     :return es: massa específica
     '''
 
-    subs = Input_Composicao(composicao)
-    fracao_molar = Input_Fracao(composicao)  # fracao molar
+    subs = input_composicao(composicao)
+    fracao_molar = input_fracao(composicao)  # fracao molar
     t = temperatura  # Temperatura em Kelvin
     pr = pressao  # Pressão em atm
 
@@ -589,28 +612,28 @@ def calcular_PressaoUnica(composicao, temperatura, pressao):
         p = 101.3 * pr
     else: p = 0.00000001
 
-    k_ij = Matriz_Kij(elementos, subs)      #criada matriz kij somente com os elementos utilizados
+    k_ij = matriz_kij(elementos, subs)      #criada matriz kij somente com os elementos utilizados
 
     subs2 = Subs2(elementos, subs)          #criada lista com os componentes da mistura na ordem correta
 
-    x = Fracao_Molar_Substancias(elementos, subs,
+    x = fracao_molar_substancias(elementos, subs,
                                 fracao_molar)  #criada lista com a fraçao molar de cada componente e na ordem correta
 
-    massa, Pc, Tc, w = Prop_Criticas(subs)      #listas que contem a massa molar dos componentes e as propriedades criticas dos fluidos e fator acentrico
+    massa, Pc, Tc, w = prop_criticas(subs)      #listas que contem a massa molar dos componentes e as propriedades criticas dos fluidos e fator acentrico
 
-    contrib_molar_mistura = Cont_Massa_Molar_Mistura(massa, subs, x)     #criada lista com a contribuiçao molar de cada fluido
+    contrib_molar_mistura = cont_massa_molar_mistura(massa, subs, x)     #criada lista com a contribuiçao molar de cada fluido
     massa_molar_total = sum(contrib_molar_mistura)              #massa molar total da mistura
 
     r = 8.31447  # cte dos gases
 
     # cálculo bi e ki
-    bi = Calculo_bi_PREOS(subs2, x)
-    ki = Calculo_ki_PREOS(subs2)
+    bi = calculo_bi_PREOS(subs2, x)
+    ki = calculo_ki_PREOS(subs2)
     ai = Ai(subs2, ki, t, r)     #lista com os termos ai
     b = sum(bi)                  #soma os ' bi ' para obter o b total
 
-    aij = Calculo_Aij(k_ij, ai, subs)    #lista com os todos os termos aij calculados
-    a = Calculo_a(subs2,x,aij)           #soma de todos os termos aij
+    aij = calculo_aij(k_ij, ai, subs)    #lista com os todos os termos aij calculados
+    a = calculo_a(subs2,x,aij)           #soma de todos os termos aij
 
     #termos da equaçao cubica
     A = (a * p) / pow(r, 2) / pow(t, 2)
@@ -619,16 +642,16 @@ def calcular_PressaoUnica(composicao, temperatura, pressao):
     c1 = A - 3 * pow(B, 2) - 2 * B
     d1 = -(A * B - pow(B, 2) - pow(B, 3))
 
-    m = Eq_Cubica(b1,c1,d1)
-    s = Stable_Root(m,p,A,B)
-    es = Massa_Especifica_Estavel(s,p,r,t,massa_molar_total)
+    m = eq_cubica(b1,c1,d1)
+    s = stable_root(m,p,A,B)
+    es = massa_especifica_estavel(s,p,r,t,massa_molar_total)
     #print('%.1f atm =' %pr, '%.3f kg/m³' %es)
 
     es = round(es, 5)
 
     return es
     
-def calcular_PressaoIntervalo(composicao, temperatura, pressao_inicial, pressao_final, passo):
+def calcular_pressao_intervalo(composicao, temperatura, pressao_inicial, pressao_final, passo) -> list:
     '''
     Realiza o cálculo da massa específica quando é fornecido um intervalo de valores de pressao
     :param composicao:
@@ -639,8 +662,8 @@ def calcular_PressaoIntervalo(composicao, temperatura, pressao_inicial, pressao_
     :return pressoes, mEspIsoterma: lista das pressoes e massas específicas
     '''
 
-    subs = Input_Composicao(composicao)
-    fracao_molar = Input_Fracao(composicao)  # fracao molar
+    subs = input_composicao(composicao)
+    fracao_molar = input_fracao(composicao)  # fracao molar
     t = temperatura  # Temperatura em Kelvin
 
     if pressao_inicial == 0:
@@ -649,52 +672,52 @@ def calcular_PressaoIntervalo(composicao, temperatura, pressao_inicial, pressao_
         p_inicial = pressao_inicial
     p_final = pressao_final
 
-    k_ij = Matriz_Kij(elementos, subs)      #criada matriz kij somente com os elementos utilizados
+    k_ij = matriz_kij(elementos, subs)      #criada matriz kij somente com os elementos utilizados
 
     subs2 = Subs2(elementos, subs)          #criada lista com os componentes da mistura na ordem correta
 
-    x = Fracao_Molar_Substancias(elementos, subs,
+    x = fracao_molar_substancias(elementos, subs,
                                 fracao_molar)  #criada lista com a fraçao molar de cada componente e na ordem correta
 
-    massa, Pc, Tc, w = Prop_Criticas(subs)      #listas que contem a massa molar dos componentes e as propriedades criticas dos fluidos e fator acentrico
+    massa, Pc, Tc, w = prop_criticas(subs)      #listas que contem a massa molar dos componentes e as propriedades criticas dos fluidos e fator acentrico
 
-    contrib_molar_mistura = Cont_Massa_Molar_Mistura(massa, subs, x)     #criada lista com a contribuiçao molar de cada fluido
+    contrib_molar_mistura = cont_massa_molar_mistura(massa, subs, x)     #criada lista com a contribuiçao molar de cada fluido
     massa_molar_total = sum(contrib_molar_mistura)              #massa molar total da mistura
 
     r = 8.31447  # cte dos gases
 
     # cálculo bi e ki
-    bi = Calculo_bi_PREOS(subs2, x)
-    ki = Calculo_ki_PREOS(subs2)
+    bi = calculo_bi_PREOS(subs2, x)
+    ki = calculo_ki_PREOS(subs2)
     ai = Ai(subs2, ki, t, r)     #lista com os termos ai
     b = sum(bi)                  #soma os ' bi ' para obter o b total
 
-    aij = Calculo_Aij(k_ij, ai, subs)    #lista com os todos os termos aij calculados
-    a = Calculo_a(subs2,x,aij)           #soma de todos os termos aij
+    aij = calculo_aij(k_ij, ai, subs)    #lista com os todos os termos aij calculados
+    a = calculo_a(subs2,x,aij)           #soma de todos os termos aij
 
-    pressoes = Lista_Pressoes(p_inicial, p_final, passo)
-    mEspIsoterma = Massa_Especifica_Isoterma(p_inicial, p_final, passo, a, r, t, b, massa_molar_total)
+    pressoes = lista_pressoes(p_inicial, p_final, passo)
+    mEspIsoterma = massa_especifica_isoterma(p_inicial, p_final, passo, a, r, t, b, massa_molar_total)
     
-    #me = Tabela_Massa_Especifica(pressoes, mEspIsoterma)
+    #me = tabela_massa_especifica(pressoes, mEspIsoterma)
 
     return pressoes, mEspIsoterma
 
 
 
 ###   Funções ainda não utilizadas - em desenvolvimento
-def Fugacidade_Liquida (subs2, x, t, r, p):
-    bi = Calculo_bi_PREOS(subs2, x)
-    ki = Calculo_ki_PREOS(subs2)
+def fugacidade_liquida (subs2, x, t, r, p):
+    bi = calculo_bi_PREOS(subs2, x)
+    ki = calculo_ki_PREOS(subs2)
     b = sum(bi)  # soma os ' bi ' para obter o b total
     ai = Ai(subs2, ki, t, r)  # lista com os termos ai
-    aij = Calculo_Aij(k_ij, ai)  # lista com os todos os termos aij calculados
-    a = Calculo_a(subs2,x,aij)
+    aij = calculo_aij(k_ij, ai)  # lista com os todos os termos aij calculados
+    a = calculo_a(subs2,x,aij)
     A = (a * p) / pow(r, 2) / pow(t, 2)
     B = (b * p) / (r * t)
     b1 = -(1 - B)
     c1 = A - 3 * pow(B, 2) - 2 * B
     d1 = -(A * B - pow(B, 2) - pow(B, 3))
-    z = Eq_Cubica(b1, c1, d1)
+    z = eq_cubica(b1, c1, d1)
     zliq = min(z)
 
     lnphi = []
@@ -711,7 +734,7 @@ def Fugacidade_Liquida (subs2, x, t, r, p):
         print(exp(lnphi[i]))
     return
 
-def Bubble_P(subs2,frac,p,t):
+def bubble_p(subs2,frac,p,t):
     '''
     Calcula a pressao do ponto de bolha
 
