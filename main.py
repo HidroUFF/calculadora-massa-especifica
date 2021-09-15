@@ -8,7 +8,7 @@ através da resolução da equação de estado cúbica de Peng Robinson.
 
 Desenvolvido por Mateus Pereira de Sousa e Valesca Moura de Sousa
 Data de criação: 18/08/2020
-Última revisão: 22/02/2021
+Última revisão: 14/09/2021
 
 '''
 
@@ -126,8 +126,7 @@ PRESSAO = 200
 '''
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication
-import gui
+from src import gui
 
 if __name__ == "__main__":
     import sys
