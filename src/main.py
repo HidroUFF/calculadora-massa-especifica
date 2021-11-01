@@ -126,7 +126,7 @@ PRESSAO = 200
 '''
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from src import gui
+import gui
 
 if __name__ == "__main__":
     import sys

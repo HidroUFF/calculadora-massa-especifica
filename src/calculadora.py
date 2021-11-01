@@ -2,7 +2,7 @@ from sympy import solveset, S, Symbol, functions
 import matplotlib.pyplot as plt
 from datetime import datetime
 from math import sqrt, exp
-from src import constant
+import constant
 
 ESCALAS_DE_TEMPERATURA = ["CELSIUS", "FAHRENHEIT", "KELVIN"]
 

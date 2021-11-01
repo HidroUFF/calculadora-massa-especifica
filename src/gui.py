@@ -6,10 +6,10 @@ from PyQt5.QtGui import QFontDatabase, QRegExpValidator
 from PyQt5.QtWidgets import QFileDialog
 from platform import system
 from os import getenv
-from src import calculadora
-from src import constant
-from src import verificacaoDeEntrada
-from src import imagesAndFonts_rc
+import calculadora
+import constant
+import verificacaoDeEntrada
+import imagesAndFonts_rc
 
 
 class Ui_MainWindow(object):
