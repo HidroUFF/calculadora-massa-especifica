@@ -1,5 +1,5 @@
 <div align='center'>
-  <img align="center" alt="Logo" height="100" width="100" src="https://raw.githubusercontent.com/HidroUFF/calculadora-massa-especifica/main/icon.ico">
+  <img align="center" alt="Logo" height="100" width="100" src="https://raw.githubusercontent.com/HidroUFF/calculadora-massa-especifica/main/assets/icon.ico">
 </div>  
 
 <h1 align="center">HidroUFF Density Calculator</h1>
