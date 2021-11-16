@@ -179,7 +179,7 @@ To carry out the addition of new substances, it is first necessary to follow the
 * <a href="http://hidrouff.sites.uff.br/">HidroUFF Laboratory</a>
 * Creation date: 08/18/2020
 * Last revised: 09/14/2021
-* Any suggestions or questions about the application, communicate one of the responsible.
+* Any suggestions or questions about the application, communicate one of the responsible: <a href="mailto:lab.hidrouff.tce@id.uff.br">lab.hidrouff.tce@id.uff.br</a>
 
 
 <h2 id="quoting" align="justify">Quoting</h2>
