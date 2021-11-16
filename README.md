@@ -121,9 +121,12 @@ To carry out the addition of new substances, it is first necessary to follow the
  
 <h2 id="technologies" align="justify">Technology</h2>
 <div align="center">
+  
   <img align="center" alt="Python" height="50" width="50" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg">
+  
   <img align="center" alt="Qt" height="50" width="50" src="https://github.com/devicons/devicon/blob/master/icons/qt/qt-original.svg">
- </div>
+ 
+</div>
 
 * Python - version 3
 * Python libraries:
@@ -184,6 +187,6 @@ If the HidroUFF Specific Mass Calculator contributed to any project or research 
 
 <div align="center"> 
   
-  [![DOI](https://zenodo.org/badge/322632859.svg)](https://zenodo.org/badge/latestdoi/322632859)
+  <a href="https://doi.org/10.5281/zenodo.4646222"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.4646222.svg" alt="DOI"></a>
   
 </div>
