@@ -1,3 +1,5 @@
 theme: jekyll-theme-cayman
 title: HidroUFF Density Calculator
 description: This application's main feature is the calculation of the density of gas mixtures, through the resolution of Peng Robinson's cubic equation of state.
+show_downloads: true
+logo: /assets/icon.ico
