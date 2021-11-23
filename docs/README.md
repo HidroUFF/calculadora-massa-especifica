@@ -143,8 +143,8 @@
     **:param self:** <br>
     **:rtype:** None
     
-* **getBotaoClicado(self, botao) -> int**
-* 
+* **getBotaoClicado(self, botao) -> int** 
+    
     Find which of the dynamic buttons was clicked.
 
     **:param self:** <br>
