@@ -1,12 +1,17 @@
 import re
 
+'''
+Module responsible for data entry verification.
+'''
+
 def verificar_campos_em_branco(vetor, pressaoUnica) -> bool:
     '''
-    Verifica se existem campos em branco nos dados de entrada
-    :param vetor: lista com todos os dados de entrada no formato
-                  vetor = [dados referentes a composicao da mistura, temperatura, pressao] 
-    :param presssaoUnica: boolean indicando se existe um único valor de pressao ou um intervalo
-    :return: True, se existem campos em branco; False, caso contrário
+    Checks for blank fields in input data.
+    :param vetor: list with all input data in format
+                   vector = [data regarding the composition of the mixture, temperature, pressure] 
+    :param presssaoUnica: boolean indicating if there is a single pressure value or an interval
+    :return: True, if there are blank fields; False otherwise.
+    :rtype: bool
     '''
     composicao = vetor[0]
     temperatura = vetor[1]
@@ -31,10 +36,11 @@ def verificar_campos_em_branco(vetor, pressaoUnica) -> bool:
 
 def verificar_substancias_repetidas(vetor) -> bool:
     '''
-    Verifica se foram selecionadas substancias repetidas entre os dados de entrada da composicao da mistura
-    :param vetor: matriz com os elementos dinamicos da interface refentes a composicao da mistura
-                  cada linha corresponde a um vetor = [frame, comboBox, lineEdit, pushButton] 
-    :return: True, se existem substancias repetidas; False, caso contrário
+    Checks whether repeated substances were selected from the mixture composition input data.
+    :param vetor: matrix with the dynamic elements of the interface referring to the composition of the mixture 
+                each line corresponds to a vector = [frame, comboBox, lineEdit, pushButton] 
+    :return: True, if there are repeated substances; false otherwise.
+    :rtype: bool
     '''
 
     for i in range(len(vetor)):
@@ -46,9 +52,10 @@ def verificar_substancias_repetidas(vetor) -> bool:
 
 def verificar_arquivo(dados, t) -> bool:
     '''
-    Verifica se arquivo .csv de entrada tem o conteudo no formato correto
-    :param dados: vetor que contem todas as linhas do arquivo lido
-    :return: True, se o arquivo é integro; False, caso contrário
+    Checks if input .csv file has content in correct format.
+    :param dados: vector containing all lines of the read file
+    :return: True, if the file is whole; false otherwise.
+    :rtype: bool
     '''
 
     for i in range(1, len(dados)):

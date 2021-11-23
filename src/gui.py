@@ -11,6 +11,9 @@ import constant
 import verificacaoDeEntrada
 import imagesAndFonts_rc
 
+'''
+This class implements the interface and data entry for the application.     
+'''
 
 class Ui_MainWindow(object):
 
@@ -23,6 +26,7 @@ class Ui_MainWindow(object):
     
     # Internacionalização
     # Strings utilizadas para nomear os labels do aplicativo na ordem: português (codigo==0), inglês (codigo==1) e espanhol (codigo==2).
+    ''' Strings used to name the application labels in order: Portuguese (code==0), English (code==1) and Spanish (code==2).'''
     codigo = 0 # Default == 0 => português
     STRINGS = {
         "substancias": [constant.SUBSTANCIAS, constant.SUBSTANCES, constant.SUSTANCIAS],
@@ -178,9 +182,9 @@ class Ui_MainWindow(object):
 
     def onClicked(self) -> bool:
         '''
-        Verifica se o radio button foi clicado e exibe o frame correspondente
+        Checks if the radio button was clicked and displays the corresponding frame.
         :param self: 
-        :return: 
+        :rtype: bool 
         '''
 
         if self.radioButton_unica.isChecked():
@@ -198,10 +202,10 @@ class Ui_MainWindow(object):
 
     def limparCampos(self) -> None:
             '''
-            Limpa os campos preenchidos
+            Clear the filled fields.
        
             :param self: 
-            :return: 
+            :rtype: None
             '''
 
             self.lineEdit_passo.clear()
@@ -215,21 +219,22 @@ class Ui_MainWindow(object):
 
     def mostrarMsgmDeErro(self, mensagem) -> None:
             '''
-            Mostra uma mensagem de erro na tela
+            Shows an error message on the screen.
        
             :param self:
             :param mensagem: string mostrada na tela 
-            :return: 
+            :rtype: None 
             '''
             self.label_erro.setText(mensagem)
             self.frame_erro.show()
 
     def input(self) -> list:
         '''
-        Lê os dados informados na interface e verifica se há algum problema com os dados
+        Reads the data entered in the interface and checks if there is any problem with the data.
 
         :param self: 
         :return inputs: inputs = [composicao, temperatura, pressao] 
+        :rtype: list
         '''
         
         #leitura dos campos
@@ -301,10 +306,11 @@ class Ui_MainWindow(object):
 
     def calcular(self) -> None: 
         '''
-        Lê dados da interface, obtem o resultado para o cálculo quando há uma única pressão e exibe na tela
+        Reads data from the interface, gets the result for calculation when there 
+        is a single pressure and displays it on the screen.
 
         :param self: 
-        :return: 
+        :rtype: None 
         '''
         
         self.frame_erro.hide() #fechar qualquer frame de erro possivelmente aberto
@@ -319,10 +325,10 @@ class Ui_MainWindow(object):
 
     def salvarResultado(self) -> None:
             '''
-            Lê dados da interface, obtem o resultado para o cálculo quando há um intervalo de valores de pressao e salva resultado em arquivo CSV
+            It reads data from the interface, gets the result for the calculation when there is a range of pressure values and saves the result in a CSV file.
 
             :param self: 
-            :return: 
+            :rtype: None 
             '''
 
             self.frame_erro.hide() #fechar qualquer frame de erro possivelmente aberto
@@ -346,10 +352,10 @@ class Ui_MainWindow(object):
 
     def gerarGraficoDaIsoterma(self) -> None:
             '''
-            Lê dados da interface, obtem o resultado para o cálculo quando há um intervalo de valores de pressao e gera o grafico da isoterma
+            It reads data from the interface, gets the result for the calculation when there is a range of pressure values and generates the graph of the isotherm.
 
             :param self: 
-            :return: 
+            :rtype: None 
             '''
 
             self.frame_erro.hide() #fechar qualquer frame de erro possivelmente aberto
@@ -368,10 +374,11 @@ class Ui_MainWindow(object):
     
     def filtrar(self) -> list:
             '''
-            Obtem indice dos items já selecionados nos comboBox existentes
+            Gets index of items already selected in the existing comboBox.
 
             :param self: 
-            :return aux: vetor com indices dos items já selecionados nos comboBox existentes
+            :return aux: vector with indices of items already selected in the existing comboBox.
+            :rtype: list
             '''
 
             aux = []
@@ -383,10 +390,11 @@ class Ui_MainWindow(object):
 
     def getIndiceAtual(self) -> int:
             '''
-            Obtem indice do próximo item ainda não selecionado nos comboBox existentes
+            Gets index of the next item not yet selected in the existing comboBox.
 
             :param self: 
-            :return indice: indice do próximo item ainda não selecionado nos comboBox existentes
+            :return indice: index of the next item not yet selected in the existing comboBox.
+            :rtype: int
             '''
 
             opcoesSelecionadas = self.filtrar()
@@ -398,11 +406,11 @@ class Ui_MainWindow(object):
         
     def gerarGraficoAPartirDeArq(self) -> None:
         '''
-        Abre caixa de diálogo de arquivo para que o usuário escolha um arquivo .csv separado por ";" com duas colunas:
-        a primeira com valores de presssão e a segunda com valores da massa específica e gera o grafico da isoterma
+        Opens file dialog for user to choose a .csv file separated by ";" with two columns: 
+        the first with pressure values and the second with specific mass values and generates the isotherm graph.
 
         :param self: 
-        :return: 
+        :rtype: None 
         '''
 
         fileDialog = QFileDialog()
@@ -427,10 +435,10 @@ class Ui_MainWindow(object):
                         
     def add(self) -> None:
         '''
-        Adiciona frames dinamicamente para novas substancias
+        Dynamically add frames for new substances.
 
         :param self: 
-        :return: 
+        :rtype: None
         '''
         
         if len(self.matrizSubstancias) < constant.NUM_SUBSTANCIAS:
@@ -541,10 +549,11 @@ class Ui_MainWindow(object):
 
     def getBotaoClicado(self, botao) -> int:
         '''
-        Encontra qual dos botoes dinamicos foi clicado
+        Find which of the dynamic buttons was clicked.
 
         :param self: 
-        :return i: indice do botao dinamico clicado
+        :return i: clicked dynamic button index
+        :rtype: int
         '''
 
         botaoClicado = botao.objectName()
@@ -554,10 +563,9 @@ class Ui_MainWindow(object):
     
     def delete(self, botao) -> None:
         '''
-        Deleta frames das substancias adicionadas dinamicamente 
-
+        Delete frames of dynamically added substances.
         :param self: 
-        :return: 
+        :rtype: None 
         '''
 
         #obter indice do botao clicado
@@ -578,10 +586,10 @@ class Ui_MainWindow(object):
 
     def ajuda(self) -> None:
         '''
-        Exibe a tela ajuda
+        Displays help screen.
 
         :param self: 
-        :return: 
+        :rtype: None 
         '''
 
         self.frame_erro.hide()
@@ -591,10 +599,10 @@ class Ui_MainWindow(object):
 
     def sobre(self) -> None:
         '''
-        Exibe a tela sobre o software
+        Displays the screen about the software.
 
         :param self: 
-        :return: 
+        :rtype: None
         '''
 
         self.frame_erro.hide()
@@ -604,15 +612,22 @@ class Ui_MainWindow(object):
 
     def fecharTela(self) -> None:
         '''
-        Fecha a tela sobre o software ou tela de ajuda
+        Closes the screen over the software or help screen.
 
         :param self: 
-        :return: 
+        :rtype: None 
         '''
 
         self.frame_baseParaAjudaESobre.hide()
             
     def setarIdioma(self, MainWindow) -> None:
+        '''
+        Applies language change event when corresponding button is clicked according to chosen language.
+
+        :param self: 
+        :rtype: None 
+        '''
+
         idioma = self.pushButton_idioma.text()
 
         if idioma == "En":
@@ -636,6 +651,12 @@ class Ui_MainWindow(object):
         self.pushButton_idioma.setText(label_idioma)  
         
     def getLanguage(self) -> str:
+        '''
+        Discover system default language to set appropriate language according to languages available in application.
+
+        :param self: 
+        :rtype: None 
+        '''
         system_language = getenv('LANG')
         
         if system_language:
@@ -654,6 +675,13 @@ class Ui_MainWindow(object):
         return 'Es'
 
     def setupUi(self, MainWindow) -> None:
+        '''
+        Responsible for building all user interface elements on screen.
+
+        :param self: 
+        :rtype: None 
+        '''
+        
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(500, 550)
         MainWindow.setMinimumSize(QtCore.QSize(500, 550))
@@ -1722,6 +1750,12 @@ class Ui_MainWindow(object):
         self.pushButton_idioma.clicked.connect(lambda: self.setarIdioma(MainWindow))
 
     def retranslateUi(self, MainWindow) -> None:
+        '''
+        Performs the translation of the elements present in the user interface to the selected language.
+
+        :param self: 
+        :rtype: None 
+        '''
         language = ''
         if self.starting:
             language = self.getLanguage()

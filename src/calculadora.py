@@ -20,7 +20,13 @@ STRINGS = {"title": ["Massa Específica a", "Density at", "Desidad a"],
 ###   FUNÇÕES  ### 
 
 def input_composicao(composicao) -> list:
-    # cria uma lista com as composiçoes
+    ''' 
+    Create a list with the compositions.
+
+    :param composicao: 
+    :rtype: list
+    '''
+    
     a = list(composicao.values())
     subs = []
     cont = 0
@@ -33,7 +39,12 @@ def input_composicao(composicao) -> list:
     return subs
 
 def input_fracao(composicao) -> list:
-    #cria uma lista com as fraçoes molares
+    ''' 
+    Create a list of molar fractions.
+
+    :param composicao: 
+    :rtype: list
+    '''
     a = list(composicao.values())
     fracao = []
     cont = 0
@@ -46,7 +57,13 @@ def input_fracao(composicao) -> list:
     return fracao
 
 def lista_pressoes(p_inicial, p_final, passo) -> list:
-    #cria uma lista com as pressoes de acordo com o passo escolhido
+    ''' 
+    Creates a list with pressures according to the chosen step.
+
+    :param composicao: 
+    :rtype: list
+    '''
+    
     pressoes = []
     pressoes.insert(0, p_inicial)
     a = int((p_final - p_inicial) / passo + 1)
@@ -63,7 +80,7 @@ def lista_pressoes(p_inicial, p_final, passo) -> list:
 
 def conversao_atm (p_list) -> list:
     '''
-    converte a pressao de atm para kpa
+    Converts ATM pressure to kPa.
 
     :param p_list: lista com as pressoes em atm
     :type p_list: list
@@ -75,10 +92,10 @@ def conversao_atm (p_list) -> list:
 
 def matriz_kij (velementos,vsubs) -> list:
     '''
-    Cria uma matriz com os Kij que serao utilizados no calculo
-    :param velementos: lista com todos os elementos disponíveis
-    :param vsubs: lista com os elementos utilizados
-    :return:
+    Creates a matrix with the Kij that will be used in the calculation.
+    :param velementos: list with all available elements
+    :param vsubs: list with the elements used
+    :rtype: list
     '''
     # criando matriz kij atual
     cont2 = []  # armazena os indices dos elementos da lista 'elementos' contidas na lista 'subs'
@@ -105,11 +122,11 @@ def matriz_kij (velementos,vsubs) -> list:
 
 def Subs2 (velementos,vsubs) -> list:
     '''
-    cria nova lista de substancias a partir de 'subs'  de modo que fique na mesma ordem que a lista 'elementos', para facilitar no cálculo do aij
+    Creates a new list of substances from 'subs' so that it is in the same order as the 'elements' list, to facilitate the calculation of aij.
 
     :param velementos:
     :param vsubs:
-    :return:
+    :rtype: list
     '''
     subs2 = []
     for i in range(len(velementos)):
@@ -121,12 +138,13 @@ def Subs2 (velementos,vsubs) -> list:
 
 def fracao_molar_substancias (velementos, vsubs, vfracao_molar) -> list:
     '''
-    cria nova lista de fraçao molar a partir de 'fracao molar e subs'  de modo que fique na mesma ordem que a lista 'elementos', para facilitar no cálculo do aij
+    Create new molar fraction list from 'molar fraction and subs' so that it is in the same order as the 'elements' list, to facilitate the calculation of aij.
 
-    :param velementos: lista com todos os elementos disponiveis
-    :param vsubs: lista com os elementos escolhidos
-    :param vfracao_molar:fraçao molar dos elementos escolhidos
-    :return: lista com fraçao molar na ordem correta para os calculos
+    :param velementos: list with all available elements
+    :param vsubs: list with chosen elements
+    :param vfracao_molar: molar fraction of chosen elements
+    :return: list with molar fraction in correct order for calculations
+    :rtype: list
     '''
     x = []
     for i in range(len(velementos)):
@@ -138,8 +156,8 @@ def fracao_molar_substancias (velementos, vsubs, vfracao_molar) -> list:
 
 def prop_criticas(subs2) -> list:
     '''
-    cria listas para as propriedade criticas de cada elemento da mistura na ordem de elementos
-    :return:
+    Creates lists for the critical properties of each element of the mix in element order.
+    :rtype: list
     '''
     massa, Pc,Tc,w  = [], [], [], []
     for i in range(len(subs2)):
@@ -151,9 +169,9 @@ def prop_criticas(subs2) -> list:
 
 def cont_massa_molar_mistura(vmassa, subs, x) -> list:
     '''
-    contribuicao da massa molar de cada fluido
-    :param vmassa: lista com massa molar de cada componente da mistura
-    :return:
+    Molar Mass Contribution of Each Fluid Molar Mass Contribution of Each Fluid.
+    :param vmassa: list with molar mass of each component of the mixture
+    :rtype: list
     '''
     contrib_molar_mistura = []
     for i in range(len(subs)):
@@ -162,9 +180,9 @@ def cont_massa_molar_mistura(vmassa, subs, x) -> list:
 
 def calculo_bi_PREOS(vsubs2, x) -> list:
     '''
-    calucula os parametros bi da eq de Peng Robison
-    :param vsubs2: lista com os elementos utilizados
-    :return:
+    Calculates the bi parameters of Peng Robinson's eq.
+    :param vsubs2: list with the elements used
+    :rtype: list
     '''
     r = 8.31447  # cte dos gases
     bi = []
@@ -175,9 +193,9 @@ def calculo_bi_PREOS(vsubs2, x) -> list:
 
 def calculo_ki_PREOS(vsubs2) -> list:
     '''
-    calucula os parametros ki da eq de Peng Robison
-    :param vsubs2: lista com os elementos utilizados
-    :return:
+    Calculates the ki parameters of Peng Robinson's eq.
+    :param vsubs2: list with the elements used
+    :rtype: list
     '''
     r = 8.31447  # cte dos gases
     ki = []
@@ -187,13 +205,13 @@ def calculo_ki_PREOS(vsubs2) -> list:
 
 def eq_cubica(b, c, d) -> list:
     '''
-    resolve uma eq cubica retornando uma lista de raizes reais
+    Solves a cubic eq by returning a list of real roots.
 
-    :param b: parametro b da eq cubica do tipo ax³ + bx² + cx + d = 0
+    :param b: parameter b of cubic eq of type ax³ + bx² + cx + d = 0
     :type b:  float
-    :param c: parametro c da eq cubica do tipo ax³ + bx² + cx + d = 0
+    :param c: parameter c of cubic eq of type ax³ + bx² + cx + d = 0
     :type c: float
-    :param d: parametro d da eq cubica do tipo ax³ + bx² + cx + d = 0
+    :param d: parameter d of cubic eq of type ax³ + bx² + cx + d = 0
     :type d: float
     :return: retorna as raizes reais
     :rtype: list
@@ -206,11 +224,11 @@ def eq_cubica(b, c, d) -> list:
 
 def Ai (vsubs2,vki,vt,r) -> list:
     '''
-    calcula o termo ai de cada componente
-    :param vsubs2: lista com substancias
-    :param vki: termo ki dos elementos
-    :param vt: temperatura em kelvin
-    :return:
+    Calculates the ai term of each component.
+    :param vsubs2: list with substances
+    :param vki: ki term of the elements
+    :param vt: temperature in kelvin
+    :rtype:list
     '''
     ai = []
     for i in range(len(vsubs2)):
@@ -219,10 +237,11 @@ def Ai (vsubs2,vki,vt,r) -> list:
 
 def calculo_aij(vk_ij,vai,subs) -> list:
     '''
-    calcula o termo 'aij' da eq de Peng Robison, atraves da multiplicaçao dos termos das matrizes aij e kij
-    :param vk_ij: matriz kij ja ajustada para os componentes utilizados
-    :param vai: matriz 'ai'
-    :return: matriz aij
+    Calculates the term 'aij' from the Peng Robison eq by multiplying the terms of the matrices aij and kij.
+    :param vk_ij: kij matrix already adjusted for the components used
+    :param go: matrix 'ai'
+    :return: matrix aij
+    :rtype: list
     '''
     # criando matriz aij e a
     a_vet = []
@@ -239,7 +258,11 @@ def calculo_aij(vk_ij,vai,subs) -> list:
     return aij
 
 def calculo_a (vsubs2,vx,vaij) -> float:
-    # criando matriz aij e a
+    '''
+    Creating matrix aij and a.
+    :param vsubs2: list with the elements used
+    :rtype: list
+    '''
     a_vet = []
     for i in range(len(vsubs2)):
         a_vet.append([0] * len(vsubs2))
@@ -253,17 +276,17 @@ def calculo_a (vsubs2,vx,vaij) -> float:
 
 def stable_root(Zlist, pressure, A, B) -> float:
     '''
-    define a raiz Z estavel a partir do calculo de fugacidade
+    Defines the stable Z root from the fugacity calculation.
 
-    :param Zlist: lista com os valores de Z
-    :type Zlist: list
-    :param pressure: valor da pressao
+    :param Zlist: list of Z values
+    :type Zlist:list
+    :param pressure: pressure value
     :type pressure: float
-    :param A: parametro A da equaçao cubica de PR
+    :param A: parameter A of the cubic equation of PR
     :type A: float
-    :param B: parametro B da equaçao cubica de PR
+    :param B: parameter B of the cubic equation of PR
     :type B: float
-    :rtype: float
+    :rtype:float
     '''
     fug = []
     for i in Zlist:
@@ -274,7 +297,7 @@ def stable_root(Zlist, pressure, A, B) -> float:
 
 def massa_especifica_geral(b1, c1, d1, massa_molar_total, p, r, t) -> list:
     '''
-    calcula a massa especfica para todos os resultados reais de Z
+    Calculate the density for all actual Z results.
     :rtype: list
     '''
     Zvar = eq_cubica(b1, c1, d1)
@@ -285,21 +308,21 @@ def massa_especifica_geral(b1, c1, d1, massa_molar_total, p, r, t) -> list:
 
 def massa_especifica_estavel(r_estavel, press, r, t, massa_molar_total) -> float:
     '''
-    calcula a massa especifica estavel a partir da raiz Z estavel
-    :param r_estavel: raiz estavel
-    :type r_estavel: float
-    :param press: pressao tipo
+    Calculates the stable density from the stable Z root.
+    :param r_stable: root stable
+    :type r_stable: float
+    : stop pressure: pressure type
     :type press: float
-    :return: retorna massa especifica da raiz estavel
-    :rtype: float
+    :return: returns stable root mass
+    :rtype:float
     '''
     m = massa_molar_total * press / (r * t * r_estavel)
     return m
 
 def massa_especifica_isoterma(p_inicial, p_final, passo, a, r, t, b, massa_molar_total) -> list:
     '''
-    calcula as massas especificas de acordo com a isoterma definida
-    :return:
+    Calculates the density according to the defined isotherm.
+    :rtype: list
     '''
     pr_atm = lista_pressoes(p_inicial, p_final, passo)
     pr_kpa = conversao_atm(pr_atm)
@@ -318,6 +341,10 @@ def massa_especifica_isoterma(p_inicial, p_final, passo, a, r, t, b, massa_molar
     return final
 
 def plot_isoterma(listaPressoes, listaMassaEspIsoterma, t, codigo_idioma) -> None:
+    '''
+    Displays isotherm graph in a matplotlib window.
+    :rtype: None
+    '''
     plt.plot(listaPressoes, listaMassaEspIsoterma)
     plt.title(STRINGS["title"][codigo_idioma] + ' %i K' % (t))
     plt.xlabel(STRINGS["label_x"][codigo_idioma] + ' (ATM)')
@@ -326,8 +353,8 @@ def plot_isoterma(listaPressoes, listaMassaEspIsoterma, t, codigo_idioma) -> Non
 
 def tabela_massa_especifica(pressoes, me) -> list:
     '''
-    cria uma tabela com as massas especificas da isoterma deifinida
-    :return:
+    Creates a table with the specific masses of the defined isotherm.
+    :rtype: list
     '''
     a = []
     a.append([0] * 2)
@@ -351,9 +378,9 @@ def tabela_massa_especifica(pressoes, me) -> list:
 
 def salvar_txt(m_esp) -> None:
     '''
-    cria um arquivo txt com as massas espeficas calculadas
-    :param m_esp: lista em forma de tabela com as massas especificas
-    :return:
+    Creates a txt file with the calculated specific masses.
+    :param m_esp: list in table form with the specific masses
+    :rtype: None
     '''
     a = m_esp
     b = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
@@ -370,9 +397,9 @@ def salvar_txt(m_esp) -> None:
 
 def obter_nome_padrao(codigo) -> str:
     '''
-    Cria um nome padrão para o arquivo que será salvo
-    :param : 
-    :return nomePadraoArquivo: nome do arquivo
+    Creates a default name for the file to be saved.
+    :return nomePadraoArquivo: name of file
+    :rtype: str
     '''
 
     data = datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
@@ -382,9 +409,10 @@ def obter_nome_padrao(codigo) -> str:
 
 def to_tabela_composicao(composicao) -> list:
     '''
-    Transforma o dicionário composição em uma tabela com a composição utilizada no cálculo
-    :param composicao: lista em forma de tabela com as massas especificas e valores de pressao
-    :return: tabela em forma de matriz com as composições
+    Turns the composition dictionary into a table with the composition used in the calculation.
+    :param composition: list in table form with specific masses and pressure values
+    :return: matrix with compositions
+    :rtype: list
     '''
 
     elements = list(composicao.keys())
@@ -399,10 +427,9 @@ def to_tabela_composicao(composicao) -> list:
 
 def salvar_csv(m_esp, temperatura, composicao, nomeArquivo, codigo) -> None:
     '''
-    cria um arquivo de extensão .csv com as massas especificas calculadas
-    :param m_esp: lista em forma de tabela com as massas especificas e valores de pressao
-    :param nomeArquivo: nome do arquivo .csv
-    :return:
+    Creates a csv file with the calculated specific masses.
+    :param m_esp: list in table form with the specific masses
+    :rtype: None
     '''
 
     #transformando valores em string
@@ -436,9 +463,8 @@ def salvar_csv(m_esp, temperatura, composicao, nomeArquivo, codigo) -> None:
 
 def formatar_dados_arquivo(dados) -> list:
     '''
-    Transforma strings lidas do arquivo em uma matriz de números
-    :param : 
-    :return [pressoes, m_esp]: 
+    Transforms strings read from the file into an array of numbers.
+    :rtype: list 
     '''
 
     for i in range(len(dados)):
@@ -454,9 +480,9 @@ def formatar_dados_arquivo(dados) -> list:
 
 def ler_arquivo(nomeArquivo, codigo) -> list:
     '''
-    Lê dados do arquivo
-    :param : 
-    :return data: dados do arquivo
+    Read data from file.
+    :return data: file data
+    :rtype:list
     '''
     data = []
     with open(nomeArquivo, 'r') as file:
@@ -478,11 +504,12 @@ def ler_arquivo(nomeArquivo, codigo) -> list:
 
 def converter_temperatura_kelvin(unidade, valor) -> float:
     '''
-    Converte a temperatura fornecida em celsius ou fahrenheit para kelvin
+    Converts the given temperature in celsius or fahrenheit to kelvin.
 
-    :param unidade: indica a unidade da temperatura
-    :param valor: indica o valor da temperatura na unidade referida
-    :return valor: valor da temperatura em kelvin
+    :param unidade: indicates the temperature unit
+    :param valor: indicates the temperature value in the referred unit
+    :return valor: temperature value in kelvin
+    :rtype: float
     '''
 
     #
@@ -498,11 +525,12 @@ def converter_temperatura_kelvin(unidade, valor) -> float:
 
 def verificar_soma_fracao_molar(matrizComposicao) -> bool:
     '''
-    Verifica se a soma das frações molares é diferente de 1.0
+    Check if the sum of molar fractions is different from 1.0.
 
-    :param matrizComposicao: matriz que contém nome e valor de cada substancia da composicao
-    matrizComposicao[[nomeDaSubstancia, valorDaSubstancia],...]
-    :return: true, se somatório é diferente de 1.0. false, caso contrário
+    :param matrizComposicao: matrix that contains the name and value of each substance in the composition
+    matrizComposicao[[SubstanceName, SubstanceValue],...]
+    :return: true, if sum is different from 1.0. false otherwise
+    :rtype: bool
     '''
     somaDaFracaoMolar = 0
     for substancia in matrizComposicao:
@@ -515,9 +543,10 @@ def verificar_soma_fracao_molar(matrizComposicao) -> bool:
 
 def formatar_input_composicao(matrizComposicao) -> list:
     '''
-    Formata input da composicao da mistura para que fique na ordem utilizada pelo programa
+    Format mix composition input so that it is in the order used by the program
     :param matrizComposicao: 
     :return composicaoFormatada: 
+    :rtype: list
     '''
 
     composicaoFormatada = {}
@@ -534,11 +563,14 @@ def formatar_input_composicao(matrizComposicao) -> list:
 
 def calcular_pressao_unica(composicao, temperatura, pressao) -> float:
     '''
-    Realiza o cálculo da massa específica quando é fornecido um valor de pressao
+    It performs the calculation of the specific mass when a pressure value 
+    is provided through the data received from the user in the interface 
+    mediated by the gui module.
     :param composicao:
     :param temperatura:
     :param pressao: 
-    :return es: massa específica
+    :return es: density
+    :rtype: float
     '''
 
     subs = input_composicao(composicao)
@@ -590,13 +622,16 @@ def calcular_pressao_unica(composicao, temperatura, pressao) -> float:
     
 def calcular_pressao_intervalo(composicao, temperatura, pressao_inicial, pressao_final, passo) -> list:
     '''
-    Realiza o cálculo da massa específica quando é fornecido um intervalo de valores de pressao
-    :param composicao:
+    Realiza o cálculo da massa específica quando é fornecido Performs the calculation 
+    of the specific mass when a range of pressure values is provided through the 
+    data received from the user in the interface mediated by the gui module.
+    :param composicao: 
     :param temperatura:
     :param pressao_inicial: 
     :param pressao_final: 
     :param passo: 
-    :return pressoes, mEspIsoterma: lista das pressoes e massas específicas
+    :return pressoes, mEspIsoterma: list of pressures and densities
+    :rtype: list
     '''
 
     subs = input_composicao(composicao)

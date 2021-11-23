@@ -19,7 +19,8 @@
  <a href="#demonstration">Demonstração</a> • 
  <a href="#technologies">Tecnologia</a> •
  <a href="#author">Desenvolvimento</a> • 
- <a href="#quoting">Citando</a>
+ <a href="#quoting">Citando</a> •
+ <a href="https://hidrouff.github.io/calculadora-massa-especifica/docs/">Guia do desenvolvedor</a>
 </p>
 
 <h2 id="use" align="justify">Como utilizar</h2>
@@ -121,7 +122,7 @@ Para a realização da adição de novas substâncias é necessário primeiro se
 <h2 id="technologies" align="justify">Tecnologia</h2>
 <div align="center">
   <img align="center" alt="Python" height="50" width="50" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg">
-  <img align="center" alt="Qt" height="50" width="50" src="https://github.com/devicons/devicon/blob/master/icons/qt/qt-original.svg">
+  
  </div>
 
 * Python - versão 3
@@ -175,7 +176,7 @@ Para a realização da adição de novas substâncias é necessário primeiro se
 * <a href="http://hidrouff.sites.uff.br/">Laboratório HidroUFF</a>
 * Data de criação: 18/08/2020
 * Última revisão: 14/09/2021
-* Qualquer sugestão ou dúvida sobre a aplicação, comunique um dos responsáveis.
+* Qualquer sugestão ou dúvida sobre a aplicação, comunique um dos responsáveis: <a href="mailto:lab.hidrouff.tce@id.uff.br">lab.hidrouff.tce@id.uff.br</a>.
 
 
 <h2 id="quoting" align="justify">Citando</h2>

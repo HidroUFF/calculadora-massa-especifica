@@ -19,7 +19,8 @@
  <a href="#demonstration">Demonstration</a> • 
  <a href="#technologies">Technology</a> •
  <a href="#author">Development</a> • 
- <a href="#quoting">Quoting</a>
+ <a href="#quoting">Quoting</a> •
+ <a href="https://hidrouff.github.io/calculadora-massa-especifica/docs/">Developer's Guide</a>
 </p>
 
 <h2 id="use" align="justify">How to use</h2>
@@ -124,8 +125,6 @@ To carry out the addition of new substances, it is first necessary to follow the
   
   <img align="center" alt="Python" height="50" width="50" src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg">
   
-  <img align="center" alt="Qt" height="50" width="50" src="https://github.com/devicons/devicon/blob/master/icons/qt/qt-original.svg">
- 
 </div>
 
 * Python - version 3
