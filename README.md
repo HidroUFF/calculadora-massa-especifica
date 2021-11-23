@@ -186,6 +186,6 @@ If the HidroUFF Specific Mass Calculator contributed to any project or research 
 
 <div align="center"> 
   
-  <a href="https://doi.org/10.5281/zenodo.4646222"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.4646222.svg" alt="DOI"></a>
+  <a href="https://doi.org/10.5281/zenodo.5719756"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.5719756.svg" alt="DOI"></a>
   
 </div>

@@ -184,6 +184,6 @@ Se a Calculadora de Massa Específica HidroUFF contribuiu para algum projeto ou 
 
 <div align="center"> 
   
-  [![DOI](https://zenodo.org/badge/322632859.svg)](https://zenodo.org/badge/latestdoi/322632859)
+  <a href="https://doi.org/10.5281/zenodo.5719756"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.5719756.svg" alt="DOI"></a>
   
 </div>
